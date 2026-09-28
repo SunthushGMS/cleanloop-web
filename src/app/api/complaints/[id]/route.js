@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/requireUser";
 const UpdateSchema = z.object({
   status: z.enum(["open", "in_progress", "resolved"]).optional(),
   assignedTo: z.string().nullable().optional(),
+  resolutionNotes: z.string().trim().max(1000).optional(),
 });
 
 // GET /api/complaints/:id — fetch single complaint details
@@ -86,6 +87,10 @@ export async function PATCH(request, { params }) {
 
     if (parsed.data.assignedTo !== undefined && session.role === "admin") {
       update.assignedTo = parsed.data.assignedTo || null;
+    }
+
+    if (parsed.data.resolutionNotes !== undefined) {
+      update.resolutionNotes = parsed.data.resolutionNotes;
     }
 
     const complaint = await Complaint.findByIdAndUpdate(params.id, update, {

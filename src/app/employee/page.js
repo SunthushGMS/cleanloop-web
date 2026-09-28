@@ -15,6 +15,8 @@ export default function EmployeePage() {
   const [complaints, setComplaints] = useState([]);
   const [hazardForm, setHazardForm] = useState({ description: "", zone: "" });
   const [hazardMsg, setHazardMsg] = useState("");
+  const [editingNotesId, setEditingNotesId] = useState(null);
+  const [notesText, setNotesText] = useState("");
 
   async function loadRoutes() {
     const res = await fetch("/api/routes");
@@ -46,12 +48,17 @@ export default function EmployeePage() {
     loadRoutes();
   }
 
-  async function updateComplaintStatus(id, status) {
+  async function updateComplaintStatus(id, status, notes = undefined) {
+    const body = { status };
+    if (notes !== undefined) body.resolutionNotes = notes;
+
     await fetch(`/api/complaints/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(body),
     });
+    setEditingNotesId(null);
+    setNotesText("");
     loadComplaints();
   }
 
@@ -100,7 +107,14 @@ export default function EmployeePage() {
                     )}
                   </div>
                   <p className="text-sm text-loop-800">{c.description}</p>
-                  <p className="text-xs text-loop-500">
+                  
+                  {c.resolutionNotes && (
+                    <div className="p-2.5 rounded bg-loop-100/70 text-xs text-loop-900 border-l-2 border-loop-700 mt-2">
+                      <strong>Resolution Notes:</strong> {c.resolutionNotes}
+                    </div>
+                  )}
+
+                  <p className="text-xs text-loop-500 pt-1">
                     Reported by {c.reportedBy?.name || "User"} &middot;{" "}
                     {new Date(c.createdAt).toLocaleDateString()}
                   </p>
@@ -108,10 +122,47 @@ export default function EmployeePage() {
                 <StatusBadge status={c.status} />
               </div>
 
-              <div className="pt-2 border-t border-loop-100 flex items-center justify-between">
-                <span className="text-xs text-loop-500">
-                  Update status:
-                </span>
+              {editingNotesId === c._id && (
+                <div className="p-3 bg-white rounded border border-loop-300 space-y-2">
+                  <label className="field-label text-xs">Add Action / Completion Notes:</label>
+                  <textarea
+                    rows={2}
+                    value={notesText}
+                    onChange={(e) => setNotesText(e.target.value)}
+                    placeholder="e.g. Cleared blocked bin and notified ward supervisor."
+                    className="field-input text-xs"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingNotesId(null);
+                        setNotesText("");
+                      }}
+                      className="btn-secondary text-xs py-1 px-2.5"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => updateComplaintStatus(c._id, c.status, notesText)}
+                      className="btn-primary text-xs py-1 px-2.5"
+                    >
+                      Save Notes
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2 border-t border-loop-100 flex items-center justify-between gap-2 flex-wrap">
+                <button
+                  onClick={() => {
+                    setEditingNotesId(c._id);
+                    setNotesText(c.resolutionNotes || "");
+                  }}
+                  className="btn-secondary text-xs py-1 px-2.5"
+                >
+                  💬 Add Notes
+                </button>
+
                 <div className="flex gap-2">
                   <button
                     onClick={() => updateComplaintStatus(c._id, "in_progress")}

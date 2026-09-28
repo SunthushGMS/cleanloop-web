@@ -39,6 +39,13 @@ export default function ResidentComplaintsPage() {
                 )}
               </div>
               <p className="text-sm text-loop-700 mt-1">{c.description}</p>
+
+              {c.resolutionNotes && (
+                <div className="p-2.5 rounded bg-loop-100/70 text-xs text-loop-900 border-l-2 border-loop-700 mt-2">
+                  <strong>Resolution Feedback:</strong> {c.resolutionNotes}
+                </div>
+              )}
+
               <div className="mt-1.5 text-xs text-loop-500 flex items-center gap-2">
                 <span>{new Date(c.createdAt).toLocaleDateString()}</span>
                 {c.assignedTo?.name && (

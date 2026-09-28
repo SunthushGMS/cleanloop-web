@@ -169,6 +169,11 @@ export default function ResidentPage() {
                   )}
                 </div>
                 <p className="text-sm text-loop-700 mt-1">{c.description}</p>
+                {c.resolutionNotes && (
+                  <p className="text-xs text-loop-600 mt-1 bg-loop-100/60 p-1.5 rounded border-l-2 border-loop-700">
+                    <strong>Note:</strong> {c.resolutionNotes}
+                  </p>
+                )}
               </div>
               <StatusBadge status={c.status} />
             </div>

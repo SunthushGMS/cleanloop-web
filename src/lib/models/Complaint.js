@@ -25,6 +25,7 @@ const ComplaintSchema = new mongoose.Schema(
     reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     resolvedAt: { type: Date, default: null },
+    resolutionNotes: { type: String, trim: true, maxlength: 1000, default: "" },
   },
   { timestamps: true }
 );
