@@ -92,6 +92,28 @@ export default function VolunteerPage() {
       </section>
 
       <section>
+        <div className="card flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-base font-semibold text-loop-950">
+              Adopt-a-Spot
+            </h2>
+            <p className="text-sm text-loop-700">
+              Look after a dumping hotspot, check it every week or two, and report new
+              problem places.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <Link href="/volunteer/spots?tab=report" className="btn-secondary">
+              Report a spot
+            </Link>
+            <Link href="/volunteer/spots" className="btn-primary">
+              My spots
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section>
         <h2 className="font-display text-base font-semibold text-loop-950 mb-3">
           Organize a campaign
         </h2>
