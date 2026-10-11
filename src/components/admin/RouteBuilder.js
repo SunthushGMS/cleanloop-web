@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { STATUS_LABEL, VEHICLE_CATEGORIES } from "@/lib/resourceConstants";
 
 function todayISODate() {
   const d = new Date();
@@ -109,10 +110,10 @@ export default function RouteBuilder() {
   // since gone into maintenance can still be shown in its dropdown.
   const loadTrucks = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/resources?category=truck", { cache: "no-store" });
+      const res = await fetch("/api/admin/resources", { cache: "no-store" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load trucks");
-      setTrucks(data.resources || []);
+      setTrucks((data.resources || []).filter((r) => VEHICLE_CATEGORIES.includes(r.category)));
     } catch (err) {
       console.error("loadTrucks error:", err);
     }
@@ -420,7 +421,7 @@ export default function RouteBuilder() {
 
               <div>
                 <label className="field-label" htmlFor="vehicle">
-                  Truck
+                  Vehicle
                 </label>
                 <select
                   id="vehicle"
@@ -428,17 +429,17 @@ export default function RouteBuilder() {
                   value={form.vehicle}
                   onChange={(e) => setForm((f) => ({ ...f, vehicle: e.target.value }))}
                 >
-                  <option value="">No truck allocated</option>
+                  <option value="">No vehicle allocated</option>
                   {availableTrucks.map((t) => (
                     <option key={t._id} value={t._id}>
                       {truckLabel(t)}
-                      {t.status !== "active" ? ` — ${t.status.replace("_", " ")}` : ""}
+                      {t.status !== "active" ? ` — ${STATUS_LABEL[t.status] || t.status}` : ""}
                     </option>
                   ))}
                 </select>
                 {trucks.length === 0 && (
                   <p className="mt-1 text-xs text-loop-500">
-                    No trucks yet. Add one (category &ldquo;Truck&rdquo;) in{" "}
+                    No vehicles yet. Add a truck, tractor, lorry, or compactor in{" "}
                     <a href="/admin/resources" className="underline">Resource manager</a>.
                   </p>
                 )}

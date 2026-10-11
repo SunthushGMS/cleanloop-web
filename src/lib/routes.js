@@ -2,6 +2,7 @@ import Route from "@/lib/models/Route";
 import Resource from "@/lib/models/Resource";
 import User from "@/lib/models/User";
 import Zone from "@/lib/models/Zone";
+import { STATUS_LABEL, VEHICLE_CATEGORIES } from "@/lib/resourceConstants";
 import { notifyUsers, notifyZoneResidents } from "@/lib/notify";
 
 /**
@@ -66,7 +67,7 @@ export function formatRouteDate(date) {
 
 /**
  * CPT-39 validation: the lead and crew must be real employee accounts,
- * the vehicle an active truck, the stops known stops of the zone, and
+ * the vehicle an available truck/tractor/lorry/compactor, the stops known stops of the zone, and
  * nobody (person or truck) may be double-booked on the same day.
  *
  * Returns an error string, or null when the allocation is valid.
@@ -100,10 +101,10 @@ export async function validateAllocation(
 
   let truck = null;
   if (vehicle) {
-    truck = await Resource.findOne({ _id: vehicle, category: "truck" }).lean();
-    if (!truck) return "Vehicle must be a truck from the Resource manager";
+    truck = await Resource.findOne({ _id: vehicle, category: { $in: VEHICLE_CATEGORIES } }).lean();
+    if (!truck) return "Vehicle must be a truck, tractor, lorry, or compactor from the Resource manager";
     if (checkVehicleStatus && truck.status !== "active") {
-      return `${truck.name} is marked "${truck.status.replace("_", " ")}" — choose an active truck`;
+      return `${truck.name} is marked "${STATUS_LABEL[truck.status] || truck.status}" — choose an available vehicle`;
     }
   }
 

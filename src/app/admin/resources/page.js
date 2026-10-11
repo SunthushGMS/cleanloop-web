@@ -10,7 +10,7 @@ export default function Page() {
     <>
       <PageHeader
         title="Resources"
-        description="Track bins, trucks, and PPE: status, condition, and zone assignment."
+        description="Register and track bins, trucks, and PPE: status, condition, and zone assignment."
       />
       <ResourceManager />
     </>
