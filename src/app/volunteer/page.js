@@ -76,12 +76,18 @@ export default function VolunteerPage() {
               Community campaigns
             </h2>
             <p className="text-sm text-loop-700">
-              See upcoming campaigns, RSVP, and check who&apos;s coming.
+              See upcoming campaigns, manage the ones you organize, and record
+              what they achieved.
             </p>
           </div>
-          <Link href="/campaigns" className="btn-primary shrink-0">
-            View campaigns
-          </Link>
+          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <Link href="/campaigns?tab=mine" className="btn-secondary">
+              My campaigns
+            </Link>
+            <Link href="/campaigns" className="btn-primary">
+              View campaigns
+            </Link>
+          </div>
         </div>
       </section>
 
