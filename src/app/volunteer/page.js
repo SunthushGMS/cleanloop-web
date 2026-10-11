@@ -91,11 +91,8 @@ export default function VolunteerPage() {
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap justify-end gap-2">
-            <Link href="/campaigns?tab=mine" className="btn-secondary">
+            <Link href="/campaigns?tab=mine" className="btn-primary">
               My campaigns
-            </Link>
-            <Link href="/campaigns" className="btn-primary">
-              View campaigns
             </Link>
           </div>
         </div>
