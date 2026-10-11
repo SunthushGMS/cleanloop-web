@@ -16,3 +16,16 @@ export function earliestTodayUTC() {
 export function isPastCampaignDate(date) {
   return new Date(date) < earliestTodayUTC();
 }
+
+const UTC_PLUS_14_MS = 14 * 60 * 60 * 1000;
+
+/**
+ * True once the campaign's day has started somewhere (UTC+14, the latest
+ * calendar date anywhere). Used for recording outcomes, so an organizer can
+ * log results on the day itself instead of waiting for it to end everywhere.
+ */
+export function hasCampaignDayStarted(date) {
+  const d = new Date(Date.now() + UTC_PLUS_14_MS);
+  const latestToday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  return new Date(date) <= latestToday;
+}
