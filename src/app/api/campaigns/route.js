@@ -3,29 +3,8 @@ import { z } from "zod";
 import dbConnect from "@/lib/dbConnect";
 import Campaign from "@/lib/models/Campaign";
 import { requireUser } from "@/lib/requireUser";
-import { earliestTodayUTC, isPastCampaignDate } from "@/lib/campaignDates";
-
-const CreateCampaignSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(3, "Title must be at least 3 characters")
-    .max(120, "Title must be 120 characters or fewer"),
-  description: z
-    .string()
-    .trim()
-    .max(1000, "Description must be 1000 characters or fewer")
-    .optional()
-    .default(""),
-  zone: z.string().trim().max(80, "Zone must be 80 characters or fewer").optional().nullable(),
-  // "YYYY-MM-DD" from the date input; stored as UTC midnight of that day.
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date")
-    .transform((value) => new Date(value))
-    .refine((date) => !Number.isNaN(date.getTime()), "Pick a valid date")
-    .refine((date) => !isPastCampaignDate(date), "Campaign date can't be in the past"),
-});
+import { earliestTodayUTC } from "@/lib/campaignDates";
+import { CreateCampaignSchema } from "@/lib/campaignValidation";
 
 const ListQuerySchema = z.object({
   // all: every campaign; mine: ones I organize; joined: ones I RSVP'd to.
