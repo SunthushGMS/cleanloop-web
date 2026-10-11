@@ -1,35 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import CampaignCard from "@/components/campaigns/CampaignCard";
 
-// Only these roles can RSVP — mirrors requireUser in /api/campaigns/[id]/rsvp.
-const RSVP_ROLES = ["resident", "volunteer"];
+// Each tab is one GET /api/campaigns query. `roles` = who sees the tab.
+const TABS = {
+  upcoming: {
+    label: "Upcoming",
+    query: "scope=all&when=upcoming",
+    empty: "No upcoming campaigns yet.",
+  },
+  mine: {
+    label: "My campaigns",
+    query: "scope=mine&when=all",
+    empty: "You haven't organized any campaigns yet.",
+    roles: ["volunteer"],
+  },
+  joined: {
+    label: "Campaigns I joined",
+    query: "scope=joined&when=all",
+    empty: "You haven't RSVP'd to any campaigns yet.",
+    roles: ["resident", "volunteer"],
+  },
+};
 
-// Campaign dates are stored as UTC midnight of the chosen day, so format them
-// in UTC; otherwise users west of UTC would see the previous day.
-function formatCampaignDate(value) {
-  return new Date(value).toLocaleDateString(undefined, {
-    timeZone: "UTC",
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+function visibleTabs(user) {
+  return Object.keys(TABS).filter((key) => !TABS[key].roles || TABS[key].roles.includes(user?.role));
 }
 
 export default function CampaignsPage() {
+  // useSearchParams needs a Suspense boundary in the App Router.
+  return (
+    <Suspense fallback={<p className="card text-sm text-loop-500">Loading campaigns...</p>}>
+      <CampaignsView />
+    </Suspense>
+  );
+}
+
+function CampaignsView() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [campaigns, setCampaigns] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [rsvpingId, setRsvpingId] = useState(null);
-  const [rsvpError, setRsvpError] = useState("");
 
-  async function loadCampaigns() {
+  const requested = searchParams.get("tab");
+  const tabs = visibleTabs(currentUser);
+  // Fall back to "upcoming" for unknown tabs or ones this role can't see.
+  const tab = userLoaded && tabs.includes(requested) ? requested : "upcoming";
+
+  const loadCampaigns = useCallback(async () => {
     setLoading(true);
     setLoadError("");
     try {
-      const res = await fetch("/api/campaigns");
+      const res = await fetch(`/api/campaigns?${TABS[tab].query}`);
       const data = await res.json();
       if (!res.ok) {
         setLoadError(data.error || "Could not load campaigns");
@@ -42,71 +69,64 @@ export default function CampaignsPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function loadCurrentUser() {
-    try {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      setCurrentUser(data.user || null);
-    } catch (err) {
-      // Without the user the list still renders; RSVP buttons just stay hidden.
-      console.error("Load current user error:", err);
-    }
-  }
+  }, [tab]);
 
   useEffect(() => {
-    loadCampaigns();
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+        setCurrentUser(data.user || null);
+      } catch (err) {
+        // Without the user the list still renders; RSVP and organizer actions stay hidden.
+        console.error("Load current user error:", err);
+      } finally {
+        setUserLoaded(true);
+      }
+    }
     loadCurrentUser();
   }, []);
 
-  function isAttending(campaign) {
-    if (!currentUser) return false;
-    return campaign.attendees?.some((a) => a.user === currentUser.id);
+  useEffect(() => {
+    // Wait for the user so a ?tab=mine link doesn't flash the Upcoming list first.
+    if (userLoaded) loadCampaigns();
+  }, [userLoaded, loadCampaigns]);
+
+  function selectTab(key) {
+    router.replace(key === "upcoming" ? "/campaigns" : `/campaigns?tab=${key}`, { scroll: false });
   }
 
-  function isOrganizer(campaign) {
-    if (!currentUser) return false;
-    return campaign.organizer === currentUser.id;
+  function replaceCampaign(updated) {
+    setCampaigns((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
   }
 
-  function canRsvp(campaign) {
-    return (
-      Boolean(currentUser) &&
-      RSVP_ROLES.includes(currentUser.role) &&
-      !isOrganizer(campaign)
-    );
-  }
-
-  async function handleRsvpToggle(campaign) {
-    setRsvpError("");
-    setRsvpingId(campaign._id);
-    const method = isAttending(campaign) ? "DELETE" : "POST";
-    try {
-      const res = await fetch(`/api/campaigns/${campaign._id}/rsvp`, { method });
-      const data = await res.json();
-      if (!res.ok) {
-        setRsvpError(data.error || "Could not update RSVP");
-        return;
-      }
-      setCampaigns((prev) =>
-        prev.map((c) => (c._id === campaign._id ? data.campaign : c))
-      );
-    } catch (err) {
-      console.error("RSVP toggle error:", err);
-      setRsvpError("Could not update RSVP");
-    } finally {
-      setRsvpingId(null);
-    }
+  function removeCampaign(id) {
+    setCampaigns((prev) => prev.filter((c) => c._id !== id));
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {tabs.length > 1 && (
+        <div role="tablist" aria-label="Campaign lists" className="flex flex-wrap gap-2">
+          {tabs.map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => selectTab(key)}
+              className={`${tab === key ? "btn-primary" : "btn-secondary"} px-4 py-1.5 text-xs`}
+            >
+              {TABS[key].label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <section>
         <h2 className="font-display text-base font-semibold text-loop-950 mb-3">
-          Upcoming campaigns
+          {tab === "upcoming" ? "Upcoming campaigns" : TABS[tab].label}
         </h2>
-        {rsvpError && <p className="text-sm text-clay-600 mb-3">{rsvpError}</p>}
 
         {loading ? (
           <p className="card text-sm text-loop-500">Loading campaigns...</p>
@@ -119,44 +139,46 @@ export default function CampaignsPage() {
           </div>
         ) : (
           <div className="space-y-3">
+            {tab === "mine" && campaigns.length > 0 && <ImpactSummary campaigns={campaigns} />}
             {campaigns.map((c) => (
-              <div key={c._id} className="card flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-loop-900">{c.title}</p>
-                  {c.description && (
-                    <p className="text-sm text-loop-700">{c.description}</p>
-                  )}
-                  <p className="mt-1 text-xs text-loop-500">
-                    {c.zone ? `${c.zone} · ` : ""}
-                    {formatCampaignDate(c.date)}
-                  </p>
-                  <p className="mt-1 text-xs text-loop-500">
-                    {c.attendees?.length || 0} attending
-                    {isOrganizer(c) && " · You're organizing this"}
-                  </p>
-                </div>
-                {canRsvp(c) && (
-                  <button
-                    type="button"
-                    onClick={() => handleRsvpToggle(c)}
-                    disabled={rsvpingId === c._id}
-                    className={`shrink-0 ${isAttending(c) ? "btn-secondary" : "btn-primary"}`}
-                  >
-                    {rsvpingId === c._id
-                      ? "..."
-                      : isAttending(c)
-                      ? "Cancel RSVP"
-                      : "I'm coming"}
-                  </button>
-                )}
-              </div>
+              <CampaignCard
+                key={c._id}
+                campaign={c}
+                currentUser={currentUser}
+                onChange={replaceCampaign}
+                onRemove={removeCampaign}
+              />
             ))}
             {campaigns.length === 0 && (
-              <p className="card text-sm text-loop-700">No upcoming campaigns yet.</p>
+              <p className="card text-sm text-loop-700">{TABS[tab].empty}</p>
             )}
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+// Totals across the organizer's campaigns — the "impact record" headline.
+function ImpactSummary({ campaigns }) {
+  const active = campaigns.filter((c) => c.status !== "cancelled");
+  const signUps = active.reduce((sum, c) => sum + (c.attendees?.length || 0), 0);
+  const bags = active.reduce((sum, c) => sum + (c.outcome?.bagsCollected || 0), 0);
+  const kg = active.reduce((sum, c) => sum + (c.outcome?.kgCollected || 0), 0);
+  const stats = [
+    { label: "Campaigns", value: active.length },
+    { label: "Sign-ups", value: signUps },
+    { label: "Bags collected", value: bags },
+    { label: "Approx. kg", value: Math.round(kg * 10) / 10 },
+  ];
+  return (
+    <div className="card grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {stats.map((s) => (
+        <div key={s.label}>
+          <p className="manifest-label text-loop-500">{s.label}</p>
+          <p className="font-display text-2xl font-bold text-loop-950">{s.value}</p>
+        </div>
+      ))}
     </div>
   );
 }
