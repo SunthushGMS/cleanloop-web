@@ -44,13 +44,13 @@ export default function RouteMap({ className = "" }) {
         width="520"
         height="420"
         viewBox="0 0 520 420"
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", overflow: "visible" }}
       >
         <defs>
           <linearGradient id="route-grad" x1="55" y1="45" x2="440" y2="335" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#EDB65C" />
-            <stop offset="0.55" stopColor="#8FA396" />
-            <stop offset="1" stopColor="#24513B" />
+            <stop offset="0" stopColor="#6EE7B7" />
+            <stop offset="0.55" stopColor="#10B981" />
+            <stop offset="1" stopColor="#047857" />
           </linearGradient>
         </defs>
 
@@ -62,7 +62,7 @@ export default function RouteMap({ className = "" }) {
         <path
           d={ROUTE_D}
           fill="none"
-          stroke="#F6F5EE"
+          stroke="#F8FAFC"
           strokeOpacity="0.18"
           strokeWidth="1"
           strokeDasharray="1 7"
@@ -70,14 +70,14 @@ export default function RouteMap({ className = "" }) {
 
         {STOPS.map((s) => (
           <g key={s.code}>
-            <circle cx={s.x} cy={s.y} r="5.5" fill="#10160F" stroke="#E2A33B" strokeWidth="1.5" />
+            <circle cx={s.x} cy={s.y} r="5.5" fill="#0F172A" stroke="#34D399" strokeWidth="1.5" />
             <text
               x={s.x + s.dx}
               y={s.y + s.dy}
               textAnchor={s.anchor}
               className="font-mono"
               fontSize="10"
-              fill="#F0EEE3"
+              fill="#E2E8F0"
               opacity="0.85"
             >
               {s.code}
@@ -89,7 +89,7 @@ export default function RouteMap({ className = "" }) {
               className="font-sans"
               fontSize="11.5"
               fontWeight="600"
-              fill="#F6F5EE"
+              fill="#F8FAFC"
             >
               {s.role}
             </text>
@@ -106,7 +106,7 @@ export default function RouteMap({ className = "" }) {
           offsetRotate: "0deg",
         }}
       >
-        <span className="block h-3 w-3 rounded-full bg-amber-500 shadow-glow" />
+        <span className="block h-3 w-3 rounded-full bg-brand-400 shadow-glow" />
       </div>
     </div>
   );

@@ -112,11 +112,11 @@ export default function CampaignCard({ campaign: c, currentUser, onChange, onRem
             >
               {c.title}
             </p>
-            {cancelled && <span className="badge bg-clay-500/15 text-clay-600">Cancelled</span>}
+            {cancelled && <span className="badge bg-clay-50 text-clay-700">Cancelled</span>}
             {!cancelled && past && <span className="badge bg-loop-100 text-loop-500">Past</span>}
             {!cancelled && !past && c.editedAt && (
               <span
-                className="badge bg-amber-500/15 text-amber-600"
+                className="badge bg-amber-50 text-amber-700"
                 title={`Details changed ${formatMoment(c.editedAt)}`}
               >
                 Updated

@@ -5,8 +5,8 @@ import { WASTE_LABELS, formatTimeWindow, nextOccurrence } from "@/lib/schedule";
 
 const WASTE_STYLES = {
   general: "bg-loop-100 text-loop-700",
-  recycling: "bg-amber-500/20 text-amber-600",
-  organic: "bg-loop-700/15 text-loop-700",
+  recycling: "bg-sky-50 text-sky-700",
+  organic: "bg-brand-50 text-brand-700",
 };
 
 function relativeDay(date) {
@@ -98,9 +98,9 @@ export default function CollectionSchedule({ zone }) {
 
       {!loading && !error && next && (
         <div className="space-y-4">
-          <div className="card border-l-4 border-l-amber-500">
+          <div className="card border-l-4 border-l-brand-500">
             <p className="manifest-label">Next collection</p>
-            <p className="mt-1 font-display text-2xl font-bold text-loop-950">
+            <p className="mt-1 font-display text-xl font-bold text-loop-950 sm:text-2xl">
               {relativeDay(next.next)} &middot;{" "}
               {next.next.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
             </p>

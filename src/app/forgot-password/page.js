@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import AuthShell from "@/components/layout/AuthShell";
 
 const IDLE = { loading: false, error: "", message: "", devResetUrl: "" };
 
@@ -31,18 +32,18 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-loop-950 px-4">
-      <div className="card w-full max-w-sm">
-        <h1 className="font-display text-xl font-semibold text-loop-950">
+    <AuthShell>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-loop-900">
           Reset your password
         </h1>
-        <p className="mt-1 text-sm text-loop-700">
+        <p className="mt-2 text-sm text-loop-500">
           Enter your account email and we&rsquo;ll send you a link to choose a new password.
         </p>
 
         {status.message ? (
           <div className="mt-6 space-y-3">
-            <p className="rounded-[3px] bg-loop-700/10 px-3 py-2 text-sm text-loop-700">
+            <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
               {status.message}
             </p>
             {/* Dev-only: no mail provider is configured yet, so the API hands
@@ -50,7 +51,7 @@ export default function ForgotPasswordPage() {
             {status.devResetUrl && (
               <p className="text-xs text-loop-500">
                 Development mode: no email is sent.{" "}
-                <a href={status.devResetUrl} className="font-medium text-loop-900 underline">
+                <a href={status.devResetUrl} className="font-semibold text-brand-700 hover:text-brand-800">
                   Open the reset link
                 </a>
               </p>
@@ -85,11 +86,11 @@ export default function ForgotPasswordPage() {
 
         <p className="mt-4 text-sm text-loop-700">
           Remembered it?{" "}
-          <Link href="/login" className="font-medium text-loop-900 underline">
+          <Link href="/login" className="font-semibold text-brand-700 hover:text-brand-800">
             Back to log in
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }

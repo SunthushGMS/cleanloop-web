@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AuthShell from "@/components/layout/AuthShell";
 
 const ROLE_HOME = {
   resident: "/resident",
@@ -91,12 +92,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-loop-950 px-4 py-10">
-      <div className="card w-full max-w-sm">
-        <h1 className="font-display text-xl font-semibold text-loop-950">
+    <AuthShell>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-loop-900">
           Create your CleanLoop account
         </h1>
-        <p className="mt-1 text-sm text-loop-700">
+        <p className="mt-2 text-sm text-loop-500">
           Choose the role that matches how you'll use the platform.
         </p>
 
@@ -204,18 +205,18 @@ export default function RegisterPage() {
 
           {error && <p className="text-sm text-clay-600">{error}</p>}
 
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-loop-700">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-loop-900 underline">
+          <Link href="/login" className="font-semibold text-brand-700 hover:text-brand-800">
             Log in
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }

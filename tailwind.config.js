@@ -1,61 +1,70 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: [
-     "./src/app/**/*.{js,jsx,ts,tsx}",
-     "./src/components/**/*.{js,jsx,ts,tsx}",
-   ],
+  content: [
+    "./src/app/**/*.{js,jsx,ts,tsx}",
+    "./src/components/**/*.{js,jsx,ts,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        // --- Core "loop" scale (kept so any existing loop-* classes elsewhere in the app
-        // still resolve — just remapped to the new civic/industrial palette instead of a
-        // generic default blue/teal scale) ---
+        // --- Neutral scale ------------------------------------------------
+        // `loop-*` is the app-wide neutral (text, borders, surfaces). It's now
+        // the slate scale, so every existing loop-* class picks up the modern
+        // palette without touching each component.
         loop: {
-          50: "#F6F5EE",   // chalk white
-          100: "#F0EEE3",  // paper (light section bg)
-          200: "#E3E0D2",  // paper hairline / divider
-          300: "#C7C2AC",  // muted paper text
-          400: "#8FA396",  // steel-sage (secondary text on dark)
-          500: "#4B564F",  // steel (secondary text on light)
-          700: "#24513B",  // loop green (primary brand color)
-          800: "#1A2318",  // ink-soft (raised dark surface)
-          900: "#10160F",  // ink (hero / footer background)
-          950: "#0A0D09",  // deepest ink, for vignette edges
+          50: "#F8FAFC",
+          100: "#F1F5F9",
+          200: "#E2E8F0",
+          300: "#CBD5E1",
+          400: "#94A3B8",
+          500: "#64748B",
+          600: "#475569",
+          700: "#334155",
+          800: "#1E293B",
+          900: "#0F172A",
+          950: "#020617",
         },
-        // Signal amber — the single accent, used sparingly for CTAs, the vehicle
-        // marker, and status highlights. Kept out of the loop scale on purpose so
-        // it's never reached for by accident via loop-500 etc.
-        amber: {
-          400: "#EDB65C",
-          500: "#E2A33B",
-          600: "#C4841F",
+        // --- Brand: eco emerald -------------------------------------------
+        // Primary actions, active navigation, success/complete states.
+        brand: {
+          50: "#ECFDF5",
+          100: "#D1FAE5",
+          200: "#A7F3D0",
+          300: "#6EE7B7",
+          400: "#34D399",
+          500: "#10B981",
+          600: "#059669",
+          700: "#047857",
+          800: "#065F46",
+          900: "#064E3B",
         },
-        // App-shell background for the role dashboards (bg-sand). Same value as
-        // loop-100 so dashboards match the root body background.
-        sand: "#F0EEE3",
-        // Clay — error text and "open" status badges (text-clay-600,
-        // bg-clay-500/15). A muted terracotta that sits with the earthy palette
-        // and stays readable on the light paper surfaces.
+        // Amber (warning / in-progress / drafts) is Tailwind's default scale.
+        // App background behind the shell's content area.
+        sand: "#F8FAFC",
+        // Danger — error text and "open" complaint badges.
         clay: {
-          500: "#B8572F",
-          600: "#9C4424",
+          50: "#FEF2F2",
+          500: "#EF4444",
+          600: "#DC2626",
+          700: "#B91C1C",
         },
       },
       fontFamily: {
-        // Wired up via CSS variables set in app/layout.js using next/font.
-        display: ["var(--font-display)", "sans-serif"], // Big Shoulders Display — condensed, civic signage feel
-        sans: ["var(--font-sans)", "sans-serif"],        // Inter — body copy
-        mono: ["var(--font-mono)", "monospace"],         // IBM Plex Mono — route codes, stats, timestamps
+        // Inter everywhere (headings included) for a clean product UI;
+        // `display` is kept as an alias so existing font-display classes work.
+        display: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        card: "0 1px 0 0 rgba(16,22,15,0.06), 0 12px 24px -12px rgba(16,22,15,0.18)",
-        glow: "0 0 80px 0 rgba(226,163,59,0.25)",
+        card: "0 1px 2px 0 rgba(15,23,42,0.05), 0 1px 3px 0 rgba(15,23,42,0.04)",
+        "card-hover": "0 4px 12px -2px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.05)",
+        glow: "0 0 80px 0 rgba(16,185,129,0.25)",
       },
       backgroundImage: {
-        // Reusable cinematic hero gradient: a soft amber "headlight" glow
-        // rising from the bottom-right of a near-black ink field.
+        // Landing-page hero: emerald glow on dark slate.
         "hero-glow":
-          "radial-gradient(60% 50% at 82% 100%, rgba(226,163,59,0.16) 0%, rgba(226,163,59,0) 60%), radial-gradient(80% 60% at 10% 0%, rgba(36,81,59,0.35) 0%, rgba(36,81,59,0) 55%)",
+          "radial-gradient(60% 50% at 82% 100%, rgba(16,185,129,0.18) 0%, rgba(16,185,129,0) 60%), radial-gradient(80% 60% at 10% 0%, rgba(5,150,105,0.25) 0%, rgba(5,150,105,0) 55%)",
       },
       keyframes: {
         "loop-travel": {

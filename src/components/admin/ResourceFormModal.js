@@ -102,7 +102,7 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-[3px] bg-loop-50 p-6 shadow-card"
+        className="w-full max-w-lg rounded-lg bg-loop-50 p-6 shadow-card"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -255,15 +255,15 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
       <style jsx>{`
         :global(.input) {
           width: 100%;
-          border: 1px solid #e3e0d2;
+          border: 1px solid #e2e8f0;
           border-radius: 3px;
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem;
           background: #fff;
-          color: #10160f;
+          color: #0f172a;
         }
         :global(.input:focus) {
-          outline: 2px solid #e2a33b;
+          outline: 2px solid #10b981;
           outline-offset: 1px;
         }
       `}</style>

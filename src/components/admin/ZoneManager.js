@@ -154,7 +154,7 @@ export default function ZoneManager() {
   }
 
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-8">
       {/* --- Create zone form ------------------------------------------- */}
       <div className="card max-w-xl">
         <h2 className="font-display text-base font-semibold text-loop-950">

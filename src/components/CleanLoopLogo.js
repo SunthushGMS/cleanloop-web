@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 /**
  * CleanLoopLogo
  * --------------------------------------------------------------------------
@@ -22,7 +24,10 @@ export default function CleanLoopLogo({
   size = 32,
   className = "",
 }) {
-  const wordmarkColor = tone === "dark" ? "#F6F5EE" : "#10160F";
+  const wordmarkColor = tone === "dark" ? "#FFFFFF" : "#0F172A";
+  // Unique per instance: two logos on one page (e.g. desktop sidebar + mobile
+  // drawer) must not share a gradient id, or one renders without its stroke.
+  const gradId = `cl-mark-grad-${useId().replace(/:/g, "")}`;
 
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
@@ -35,11 +40,11 @@ export default function CleanLoopLogo({
         aria-label="CleanLoop"
       >
         <defs>
-          {/* Green -> amber sweep: the loop "travels" from ops-green into
-              signal-amber, the same direction the hero's vehicle marker moves. */}
-          <linearGradient id="cl-mark-grad" x1="4" y1="6" x2="36" y2="34" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#24513B" />
-            <stop offset="1" stopColor="#E2A33B" />
+          {/* Deep -> light emerald sweep: the loop "travels" from ops-green into
+              light emerald, the same direction the hero's vehicle marker moves. */}
+          <linearGradient id={gradId} x1="4" y1="6" x2="36" y2="34" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#047857" />
+            <stop offset="1" stopColor="#34D399" />
           </linearGradient>
         </defs>
 
@@ -48,7 +53,7 @@ export default function CleanLoopLogo({
         <path
           d="M20 5.5
              A14.5 14.5 0 1 1 8.2 28.4"
-          stroke="url(#cl-mark-grad)"
+          stroke={`url(#${gradId})`}
           strokeWidth="3.4"
           strokeLinecap="round"
           fill="none"
@@ -57,12 +62,12 @@ export default function CleanLoopLogo({
         {/* Arrowhead: closes the gap, gives the loop a direction of travel. */}
         <path
           d="M8.2 28.4 L6.6 21.7 L13 24.6 Z"
-          fill="#E2A33B"
+          fill="#34D399"
         />
 
         {/* Fixed stop marker at the top of the loop. */}
-        <circle cx="20" cy="5.5" r="3.1" fill="#10160F" />
-        <circle cx="20" cy="5.5" r="1.35" fill="#F6F5EE" />
+        <circle cx="20" cy="5.5" r="3.1" fill="#0F172A" />
+        <circle cx="20" cy="5.5" r="1.35" fill="#FFFFFF" />
       </svg>
 
       {variant === "lockup" && (
@@ -70,7 +75,7 @@ export default function CleanLoopLogo({
           className="font-display text-[1.35rem] font-bold leading-none tracking-tight"
           style={{ color: wordmarkColor }}
         >
-          Clean<span style={{ color: "#E2A33B" }}>Loop</span>
+          Clean<span style={{ color: "#10B981" }}>Loop</span>
         </span>
       )}
     </span>

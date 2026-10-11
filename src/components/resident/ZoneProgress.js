@@ -59,7 +59,7 @@ export default function ZoneProgress() {
           return (
             <div key={r._id} className="card">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[3px] bg-loop-900 text-amber-500">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                   {r.status === "completed" ? <IconCheckCircle /> : <IconTruck />}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -71,13 +71,13 @@ export default function ZoneProgress() {
                 </div>
               </div>
               <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-loop-100">
-                <div className="h-full rounded-full bg-amber-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${pct}%` }} />
               </div>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {r.stops.map((s, i) => (
                   <li
                     key={i}
-                    className={`badge ${s.completed ? "bg-loop-700/15 text-loop-700" : "bg-loop-100 text-loop-500"}`}
+                    className={`badge ${s.completed ? "bg-brand-50 text-brand-700" : "bg-loop-100 text-loop-500"}`}
                   >
                     {s.completed ? "✓ " : ""}
                     {s.label}

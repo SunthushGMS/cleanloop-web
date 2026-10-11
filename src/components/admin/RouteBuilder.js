@@ -315,7 +315,7 @@ export default function RouteBuilder() {
   const routeStarted = Boolean(editing?.startedAt);
 
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-8">
       <div className="card max-w-2xl">
         <h2 className="font-display text-base font-semibold text-loop-950">
           {editing ? "Change route" : "Assign a new route"}
@@ -392,7 +392,7 @@ export default function RouteBuilder() {
           )}
 
           {/* --- CPT-39 Team & vehicle allocation ------------------------ */}
-          <fieldset className="rounded-[3px] border border-loop-200 p-4">
+          <fieldset className="rounded-lg border border-loop-200 p-4">
             <legend className="px-1 text-sm font-semibold text-loop-900">Team &amp; vehicle</legend>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
@@ -513,7 +513,7 @@ export default function RouteBuilder() {
                           </option>
                         ))}
                       </select>
-                      {done && <span className="badge shrink-0 bg-loop-700/15 text-loop-700">Done</span>}
+                      {done && <span className="badge shrink-0 bg-brand-50 text-brand-700">Done</span>}
                       <button
                         type="button"
                         onClick={() => moveStop(index, -1)}
@@ -615,7 +615,7 @@ export default function RouteBuilder() {
               const crewNames = (route.crew || []).map((c) => c.name).join(", ");
               const log = route.changeLog || [];
               return (
-                <div key={route._id} className={`card ${editing?._id === route._id ? "ring-2 ring-amber-500" : ""}`}>
+                <div key={route._id} className={`card ${editing?._id === route._id ? "ring-2 ring-brand-500" : ""}`}>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-loop-900">

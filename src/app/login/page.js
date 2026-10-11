@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import AuthShell from "@/components/layout/AuthShell";
 
 const ROLE_HOME = {
   resident: "/resident",
@@ -69,17 +70,17 @@ function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-loop-950 px-4">
-      <div className="card w-full max-w-sm">
-        <h1 className="font-display text-xl font-semibold text-loop-950">
+    <AuthShell>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-loop-900">
           Log in to CleanLoop
         </h1>
-        <p className="mt-1 text-sm text-loop-700">
+        <p className="mt-2 text-sm text-loop-500">
           Residents, operations, crew, and volunteers all sign in here.
         </p>
 
         {searchParams.get("reset") === "1" && (
-          <p className="mt-4 rounded-[3px] bg-loop-700/10 px-3 py-2 text-sm text-loop-700">
+          <p className="mt-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
             Password reset. Log in with your new password.
           </p>
         )}
@@ -104,7 +105,7 @@ function LoginForm() {
               <label className="field-label" htmlFor="password">
                 Password
               </label>
-              <Link href="/forgot-password" className="text-xs text-loop-700 underline">
+              <Link href="/forgot-password" className="text-xs font-medium text-brand-700 hover:text-brand-800">
                 Forgot password?
               </Link>
             </div>
@@ -121,18 +122,18 @@ function LoginForm() {
 
           {error && <p className="text-sm text-clay-600">{error}</p>}
 
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
 
         <p className="mt-4 text-sm text-loop-700">
           No account yet?{" "}
-          <Link href="/register" className="font-medium text-loop-900 underline">
+          <Link href="/register" className="font-semibold text-brand-700 hover:text-brand-800">
             Create one
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }

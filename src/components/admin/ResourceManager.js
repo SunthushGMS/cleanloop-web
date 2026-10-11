@@ -6,8 +6,8 @@ import ResourceFormModal from "./ResourceFormModal";
 const CATEGORY_LABEL = { bin: "Bin", truck: "Truck", ppe: "PPE", other: "Other" };
 
 const STATUS_STYLE = {
-  active: "bg-loop-700/15 text-loop-700",
-  maintenance: "bg-clay-500/15 text-clay-600",
+  active: "bg-brand-50 text-brand-700",
+  maintenance: "bg-clay-50 text-clay-700",
   retired: "bg-loop-100 text-loop-500",
   out_of_stock: "bg-red-50 text-red-600",
 };
@@ -106,12 +106,12 @@ export default function ResourceManager() {
   }
 
   return (
-    <div className="mt-8">
+    <div>
       <div className="flex flex-wrap items-center gap-3">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-[3px] border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
+          className="rounded-lg border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
         >
           <option value="">All categories</option>
           <option value="bin">Bins</option>
@@ -123,7 +123,7 @@ export default function ResourceManager() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-[3px] border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
+          className="rounded-lg border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
         >
           <option value="">All statuses</option>
           <option value="active">Active</option>
@@ -137,7 +137,7 @@ export default function ResourceManager() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search name or ID…"
-          className="min-w-[200px] flex-1 rounded-[3px] border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
+          className="min-w-[200px] flex-1 rounded-lg border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
         />
 
         <button
@@ -149,7 +149,7 @@ export default function ResourceManager() {
         </button>
       </div>
 
-      <div className="mt-5 overflow-x-auto rounded-[3px] border border-loop-200">
+      <div className="mt-5 overflow-x-auto rounded-xl border border-loop-200 bg-white shadow-card">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-loop-100 text-xs uppercase tracking-wide text-loop-500">
             <tr>

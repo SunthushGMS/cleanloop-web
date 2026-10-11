@@ -22,7 +22,7 @@ function timeAgo(value) {
 /**
  * NotificationBell (CPT-28)
  * ---------------------------------------------------------------------
- * Unread badge + dropdown feed, rendered in the shared Navbar for every
+ * Unread badge + dropdown feed, rendered in the AppShell top bar for every
  * role. Reads GET /api/notifications; marks read via PATCH.
  */
 export default function NotificationBell() {
@@ -104,18 +104,18 @@ export default function NotificationBell() {
         }}
         aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`}
         aria-expanded={open}
-        className="relative flex h-10 w-10 items-center justify-center rounded-[3px] text-loop-700 hover:bg-loop-50"
+        className="relative flex h-10 w-10 items-center justify-center rounded-lg text-loop-700 hover:bg-loop-50"
       >
         <IconBell />
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-amber-500 px-1 font-mono text-[10px] font-semibold text-loop-900">
+          <span className="absolute right-1 top-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-clay-500 px-1 text-[10px] font-semibold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-[3px] border border-loop-200 bg-white shadow-card">
+        <div className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-loop-200 bg-white shadow-card">
           <div className="flex items-center justify-between border-b border-loop-100 px-4 py-3">
             <p className="text-sm font-semibold text-loop-950">Notifications</p>
             <button
@@ -145,7 +145,7 @@ export default function NotificationBell() {
                       {n.title}
                     </p>
                     {!n.readAt && (
-                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" aria-label="Unread" />
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" aria-label="Unread" />
                     )}
                   </div>
                   {n.message && <p className="mt-0.5 text-xs text-loop-500">{n.message}</p>}

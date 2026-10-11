@@ -192,7 +192,7 @@ export default function ScheduleManager() {
   const noZones = !loading && !loadError && zones.length === 0;
 
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-8">
       <div className="card max-w-2xl">
         <h2 className="font-display text-base font-semibold text-loop-950">
           {editingId ? "Edit schedule" : "Create a collection schedule"}
@@ -328,7 +328,7 @@ export default function ScheduleManager() {
       </div>
 
       {message && (
-        <p className="rounded-[3px] bg-loop-700/10 px-4 py-3 text-sm text-loop-700">{message}</p>
+        <p className="rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-700">{message}</p>
       )}
 
       <div>
@@ -387,7 +387,7 @@ export default function ScheduleManager() {
                           <div className="flex items-center gap-3">
                             <span
                               className={`badge ${
-                                live ? "bg-loop-700/15 text-loop-700" : "bg-amber-500/20 text-amber-600"
+                                live ? "bg-brand-50 text-brand-700" : "bg-amber-50 text-amber-700"
                               }`}
                             >
                               {live ? "Published" : "Draft"}

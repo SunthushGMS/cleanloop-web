@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TodayRoute from "@/components/employee/TodayRoute";
+import PageHeader from "@/components/layout/PageHeader";
 
 export default function EmployeePage() {
   // Route history state — kept separate from TodayRoute's own fetch/state,
@@ -40,6 +41,10 @@ export default function EmployeePage() {
 
   return (
     <div className="space-y-8">
+      <PageHeader
+        title="Field app"
+        description="Your stops for today, your truck and team, and quick hazard reporting."
+      />
       {/* Primary user story: "view my assigned route for the day" */}
       <TodayRoute />
 

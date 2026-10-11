@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import AuthShell from "@/components/layout/AuthShell";
 
 export default function ResetPasswordPage() {
   return (
@@ -47,9 +48,9 @@ function ResetPasswordForm() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-loop-950 px-4">
-      <div className="card w-full max-w-sm">
-        <h1 className="font-display text-xl font-semibold text-loop-950">
+    <AuthShell>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-loop-900">
           Choose a new password
         </h1>
 
@@ -109,6 +110,6 @@ function ResetPasswordForm() {
           </form>
         )}
       </div>
-    </main>
+    </AuthShell>
   );
 }

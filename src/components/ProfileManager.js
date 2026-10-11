@@ -20,7 +20,7 @@ export default function ProfileManager({ initialUser }) {
   const [user, setUser] = useState(initialUser);
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="space-y-6">
       <AccountSummaryCard user={user} />
       <NameForm user={user} onUpdated={setUser} />
       {user.role === "resident" && <ZoneForm user={user} onUpdated={setUser} />}

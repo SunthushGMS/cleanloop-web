@@ -7,8 +7,8 @@ const REFRESH_MS = 30 * 1000;
 
 const STATUS = {
   not_started: { label: "Not started", className: "bg-loop-100 text-loop-500" },
-  in_progress: { label: "In progress", className: "bg-amber-500/20 text-amber-600" },
-  completed: { label: "Completed", className: "bg-loop-700/15 text-loop-700" },
+  in_progress: { label: "In progress", className: "bg-amber-50 text-amber-700" },
+  completed: { label: "Completed", className: "bg-brand-50 text-brand-700" },
 };
 
 function todayISODate() {
@@ -70,7 +70,7 @@ export default function ProgressBoard() {
   const pct = totals && totals.stops ? Math.round((totals.stopsCompleted / totals.stops) * 100) : 0;
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <label className="field-label" htmlFor="progress-date">
@@ -117,7 +117,7 @@ export default function ProgressBoard() {
               </span>
             </div>
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-loop-100">
-              <div className="h-full rounded-full bg-amber-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+              <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${pct}%` }} />
             </div>
           </div>
 
@@ -173,7 +173,7 @@ function RouteProgressCard({ route }) {
       </div>
 
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-loop-100">
-        <div className="h-full rounded-full bg-amber-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
       <div className="mt-2 flex flex-wrap justify-between gap-2 text-xs text-loop-500">
         <span>
@@ -190,7 +190,7 @@ function RouteProgressCard({ route }) {
         {route.stops.map((stop, i) => (
           <li key={stop._id} className="flex items-center gap-2 text-sm">
             {stop.completed ? (
-              <IconCheckCircle className="h-4 w-4 shrink-0 text-loop-700" />
+              <IconCheckCircle className="h-4 w-4 shrink-0 text-brand-600" />
             ) : (
               <span className="flex h-4 w-4 shrink-0 items-center justify-center font-mono text-[10px] text-loop-400">
                 {i + 1}

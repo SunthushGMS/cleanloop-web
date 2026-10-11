@@ -187,7 +187,7 @@ export default function TodayRoute() {
           Today&rsquo;s route
         </h2>
         <div className="card flex items-center gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[3px] bg-loop-900 text-amber-500">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
             <IconRoute />
           </span>
           <div>
@@ -239,7 +239,7 @@ export default function TodayRoute() {
           </div>
           <span
             className={`badge ${
-              allDone ? "bg-loop-700/15 text-loop-700" : "bg-loop-100 text-loop-700"
+              allDone ? "bg-brand-50 text-brand-700" : "bg-loop-100 text-loop-700"
             }`}
           >
             {completedCount}/{totalCount} complete
@@ -247,7 +247,7 @@ export default function TodayRoute() {
         </div>
 
         {/* CPT-39: who's on board and which truck */}
-        <dl className="mt-4 grid gap-3 rounded-[3px] bg-loop-100 p-3 text-sm sm:grid-cols-2">
+        <dl className="mt-4 grid gap-3 rounded-lg bg-loop-100 p-3 text-sm sm:grid-cols-2">
           <div className="flex items-start gap-2">
             <IconTruck className="mt-0.5 h-4 w-4 shrink-0 text-loop-500" />
             <div>
@@ -275,7 +275,7 @@ export default function TodayRoute() {
         </dl>
 
         {!route.startedAt && !allDone && (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[3px] border border-amber-500/40 bg-amber-500/10 p-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-brand-200 bg-brand-50 p-3">
             <p className="text-sm text-loop-900">
               Heading out? Starting the route alerts residents in {route.zone} that the truck is on its way.
             </p>
@@ -303,7 +303,7 @@ export default function TodayRoute() {
         {/* Progress bar */}
         <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-loop-100">
           <div
-            className="h-full rounded-full bg-amber-500 transition-all duration-300"
+            className="h-full rounded-full bg-brand-500 transition-all duration-300"
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -328,7 +328,7 @@ export default function TodayRoute() {
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs ${
                     stop.completed
-                      ? "bg-loop-700 text-loop-50"
+                      ? "bg-brand-600 text-white"
                       : "border border-loop-300 text-loop-500"
                   }`}
                 >
