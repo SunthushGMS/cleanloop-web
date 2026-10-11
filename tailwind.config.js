@@ -25,10 +25,16 @@ module.exports = {
         // Signal amber — the single accent, used sparingly for CTAs, the vehicle
         // marker, and status highlights. Kept out of the loop scale on purpose so
         // it's never reached for by accident via loop-500 etc.
-        amber: {
+                amber: {
           400: "#EDB65C",
           500: "#E2A33B",
           600: "#C4841F",
+        },
+        // Previously referenced in JSX but never defined.
+        sand: "#F0EEE3",
+        clay: {
+          500: "#B5573A",
+          600: "#9A4229",
         },
       },
       fontFamily: {

@@ -2,16 +2,40 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Resource from "@/lib/models/Resource";
 import { requireUser } from "@/lib/requireUser";
+import { UpdateResourceSchema } from "@/lib/validators/resource";
 
 /**
- * PATCH /api/admin/resources/:id
- * Body: any subset of the Resource fields to update.
+ * GET /api/admin/resources/:id
  */
-export async function PATCH(request, { params }) {
+export async function GET(request, { params }) {
   const session = requireUser(["admin"]);
   if (session instanceof NextResponse) return session;
 
   await dbConnect();
+
+  try {
+    const resource = await Resource.findById(params.id).lean();
+    if (!resource) {
+      return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+    }
+    return NextResponse.json({ resource });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return NextResponse.json({ error: "Invalid resource id" }, { status: 400 });
+    }
+    console.error("GET /api/admin/resources/:id error:", err);
+    return NextResponse.json({ error: "Could not load resource" }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/admin/resources/:id
+ * Body: any subset of the fields in UpdateResourceSchema. Unknown fields
+ * (createdBy, assignedTo, _id, ...) are silently dropped by Zod.
+ */
+export async function PATCH(request, { params }) {
+  const session = requireUser(["admin"]);
+  if (session instanceof NextResponse) return session;
 
   let body;
   try {
@@ -20,11 +44,22 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
+  const parsed = UpdateResourceSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  await dbConnect();
+
   try {
-    const resource = await Resource.findByIdAndUpdate(params.id, body, {
-      new: true, // return the updated doc, not the pre-update one
-      runValidators: true, // re-run schema validation (enums, min, etc.) on update
-    });
+    const resource = await Resource.findByIdAndUpdate(
+      params.id,
+      { $set: parsed.data },
+      { new: true, runValidators: true }
+    );
 
     if (!resource) {
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
