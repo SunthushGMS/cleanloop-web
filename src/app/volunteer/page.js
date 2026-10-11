@@ -3,35 +3,68 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const EMPTY_FORM = { title: "", description: "", zone: "", date: "" };
+
+// Today in the user's own time zone, as "YYYY-MM-DD" to match <input type="date">.
+function localToday() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export default function VolunteerPage() {
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    zone: "",
-    date: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  function update(field) {
+    return (e) => {
+      const { value } = e.target;
+      setForm((f) => ({ ...f, [field]: value }));
+      // Clear a field's error as soon as the user edits it.
+      setFieldErrors((errs) => ({ ...errs, [field]: undefined }));
+    };
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
     setSuccess("");
-    setSubmitting(true);
-    const res = await fetch("/api/campaigns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error || "Could not create campaign");
+
+    // "YYYY-MM-DD" strings compare correctly as plain strings.
+    if (form.date && form.date < localToday()) {
+      setFieldErrors({ date: ["Campaign date can't be in the past"] });
       return;
     }
-    setForm({ title: "", description: "", zone: "", date: "" });
-    setSuccess("Campaign published.");
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.details) {
+          setFieldErrors(data.details);
+          setError("Please fix the highlighted fields.");
+        } else {
+          setError(data.error || "Could not create campaign");
+        }
+        return;
+      }
+      setForm(EMPTY_FORM);
+      setSuccess("Campaign published.");
+    } catch (err) {
+      console.error("Create campaign error:", err);
+      setError("Could not create campaign. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -64,10 +97,15 @@ export default function VolunteerPage() {
             <input
               id="title"
               required
+              minLength={3}
+              maxLength={120}
               className="field-input"
+              aria-invalid={Boolean(fieldErrors.title)}
+              aria-describedby={fieldErrors.title ? "title-error" : undefined}
               value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              onChange={update("title")}
             />
+            <FieldError id="title-error" messages={fieldErrors.title} />
           </div>
           <div>
             <label className="field-label" htmlFor="description">
@@ -76,10 +114,14 @@ export default function VolunteerPage() {
             <textarea
               id="description"
               rows={3}
+              maxLength={1000}
               className="field-input"
+              aria-invalid={Boolean(fieldErrors.description)}
+              aria-describedby={fieldErrors.description ? "description-error" : undefined}
               value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              onChange={update("description")}
             />
+            <FieldError id="description-error" messages={fieldErrors.description} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -88,10 +130,14 @@ export default function VolunteerPage() {
               </label>
               <input
                 id="zone"
+                maxLength={80}
                 className="field-input"
+                aria-invalid={Boolean(fieldErrors.zone)}
+                aria-describedby={fieldErrors.zone ? "zone-error" : undefined}
                 value={form.zone}
-                onChange={(e) => setForm((f) => ({ ...f, zone: e.target.value }))}
+                onChange={update("zone")}
               />
+              <FieldError id="zone-error" messages={fieldErrors.zone} />
             </div>
             <div>
               <label className="field-label" htmlFor="date">
@@ -101,10 +147,14 @@ export default function VolunteerPage() {
                 id="date"
                 type="date"
                 required
+                min={localToday()}
                 className="field-input"
+                aria-invalid={Boolean(fieldErrors.date)}
+                aria-describedby={fieldErrors.date ? "date-error" : undefined}
                 value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                onChange={update("date")}
               />
+              <FieldError id="date-error" messages={fieldErrors.date} />
             </div>
           </div>
           {error && <p className="text-sm text-clay-600">{error}</p>}
@@ -116,11 +166,20 @@ export default function VolunteerPage() {
               </Link>
             </p>
           )}
-          <button type="submit" disabled={submitting} className="btn-primary">
+          <button type="submit" disabled={submitting} className="btn-primary disabled:opacity-60">
             {submitting ? "Publishing..." : "Publish campaign"}
           </button>
         </form>
       </section>
     </div>
+  );
+}
+
+function FieldError({ id, messages }) {
+  if (!messages?.length) return null;
+  return (
+    <p id={id} className="mt-1 text-xs text-clay-600">
+      {messages.join(" ")}
+    </p>
   );
 }
