@@ -14,16 +14,17 @@ export default function ResourceManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Filters
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
   const [condition, setCondition] = useState("");
   const [q, setQ] = useState("");
 
+  // Modal state: null = closed, "new" = create mode, <object> = edit mode
   const [modalTarget, setModalTarget] = useState(null);
 
-  // Zones fetched once here, passed down to the modal, rather than
-  // re-fetched every time the modal opens — the modal's zone field is a
-  // dropdown sourced from this list (see ResourceFormModal.js).
+  // Zones fetched once here and passed to the modal, whose zone field is a
+  // dropdown of the admin-managed Zone list.
   const [zones, setZones] = useState([]);
 
   useEffect(() => {
@@ -62,6 +63,8 @@ export default function ResourceManager() {
   }, [category, status, condition, q]);
 
   useEffect(() => {
+    // Debounce the search input specifically, so we're not firing a
+    // request on every keystroke — dropdown filters fetch instantly.
     const t = setTimeout(fetchResources, q ? 350 : 0);
     return () => clearTimeout(t);
   }, [fetchResources, q]);
@@ -86,6 +89,8 @@ export default function ResourceManager() {
     }
   }
 
+  // Called by the modal after a successful create/update, so the table
+  // doesn't need a full refetch.
   function handleSaved(saved) {
     setResources((prev) => {
       const exists = prev.some((r) => r._id === saved._id);
@@ -101,8 +106,10 @@ export default function ResourceManager() {
 
   return (
     <div>
+      <ResourceStats />
+
       {/* Filter bar — stacks to full-width rows on mobile, inline on sm: up */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           type="text"
           value={q}
@@ -179,6 +186,12 @@ export default function ResourceManager() {
           + Add resource
         </button>
       </div>
+
+      {hasActiveFilters && !loading && !error && (
+        <p className="mt-3 text-xs text-loop-500">
+          {resources.length} resource{resources.length === 1 ? "" : "s"} match these filters.
+        </p>
+      )}
 
       {/* Loading / error / empty states, shared by both layouts below */}
       {loading && (

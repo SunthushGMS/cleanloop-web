@@ -7,6 +7,8 @@ import {
   CONDITION_OPTIONS,
 } from "@/lib/resourceConstants";
 
+// Extra `meta` fields per category (only things without a real column).
+const FUEL = [{ key: "fuelType", label: "Fuel type", placeholder: "e.g. diesel" }];
 const META_FIELDS = {
   truck: FUEL,
   tractor: FUEL,
@@ -45,6 +47,40 @@ function emptyForm() {
     notes: "",
     meta: {},
   };
+}
+
+function formFromTarget(t) {
+  return {
+    name: t.name || "",
+    category: t.category || "truck",
+    identifier: t.identifier || "",
+    registrationNumber: t.registrationNumber || "",
+    make: t.make || "",
+    model: t.model || "",
+    purchaseDate: toDateInput(t.purchaseDate),
+    purchaseCost: t.purchaseCost ?? "",
+    capacity: t.capacity || "",
+    status: t.status || "active",
+    condition: t.condition || "good",
+    quantity: t.quantity ?? 1,
+    zone: t.zone || "",
+    operatorName: t.operatorName || "",
+    warranty: t.warranty || "",
+    lastServicedAt: toDateInput(t.lastServicedAt),
+    nextMaintenanceAt: toDateInput(t.nextMaintenanceAt),
+    notes: t.notes || "",
+    meta: t.meta || {},
+  };
+}
+
+// Turns { error, details: { field: [msgs] } } into one readable string.
+function buildError(data, fallback) {
+  const details = data?.details
+    ? Object.entries(data.details)
+        .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
+        .join("; ")
+    : "";
+  return (data?.error || fallback) + (details ? ` (${details})` : "");
 }
 
 export default function ResourceFormModal({ target, zones = [], onClose, onSaved }) {
@@ -114,6 +150,7 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
       className="fixed inset-0 z-50 flex items-center justify-center bg-loop-950/50 p-4"
       onClick={onClose}
     >
+      {/* Stop propagation so clicking inside the card doesn't close the modal */}
       <div
         className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
@@ -221,17 +258,15 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
               </select>
             </Field>
 
-            {/* Was a free-text input — now sourced from the admin-managed
-                Zone list (passed down from ResourceManager). "No zone
-                assigned" keeps this optional, matching Resource.zone's
-                schema default of "". */}
-            <Field label="Zone">
-              <select
-                value={form.zone}
-                onChange={(e) => update("zone", e.target.value)}
-                className="field-input"
-              >
+            {/* Sourced from the admin-managed Zone list (passed down from
+                ResourceManager); "No zone assigned" keeps it optional. */}
+            <Field label="Zone / location">
+              <select className="field-input" {...bind("zone")}>
                 <option value="">No zone assigned</option>
+                {/* Keep a legacy free-text zone selectable when editing. */}
+                {form.zone && !zones.some((z) => z.name === form.zone) && (
+                  <option value={form.zone}>{form.zone}</option>
+                )}
                 {zones.map((z) => (
                   <option key={z._id} value={z.name}>
                     {z.name}
@@ -252,6 +287,7 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
               <input type="date" className="field-input" {...bind("nextMaintenanceAt")} />
             </Field>
 
+            {/* Category-specific fields, driven by META_FIELDS above */}
             {metaFields.map((f) => (
               <Field key={f.key} label={f.label}>
                 <input
@@ -290,22 +326,6 @@ export default function ResourceFormModal({ target, zones = [], onClose, onSaved
           </div>
         </form>
       </div>
-
-      <style jsx>{`
-        :global(.input) {
-          width: 100%;
-          border: 1px solid #e3e0d2;
-          border-radius: 3px;
-          padding: 0.5rem 0.75rem;
-          font-size: 0.875rem;
-          background: #fff;
-          color: #10160f;
-        }
-        :global(.input:focus) {
-          outline: 2px solid #e2a33b;
-          outline-offset: 1px;
-        }
-      `}</style>
     </div>
   );
 }
