@@ -33,3 +33,32 @@ export function localDayKey(date = new Date()) {
   // en-CA formats as YYYY-MM-DD.
   return new Intl.DateTimeFormat("en-CA", { timeZone: APP_TIME_ZONE }).format(date);
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Derived state of a spot, shared by the API and the UI:
+ * - adopted: has a volunteer.
+ * - stale: adopted, but no check-in for STALE_AFTER_DAYS (counted from
+ *   adoption if never checked). A quietly abandoned spot looks "covered",
+ *   which is worse than no volunteer, so the admin needs to see it.
+ * - needsAttention: the latest check-in said "dumped" or "needs attention".
+ *   Clears by itself when a later check-in says "clean".
+ */
+export function spotHealth(spot, now = new Date()) {
+  const adopted = Boolean(spot.adopter);
+  // Count from the later of the last check-in and the adoption, so a new
+  // adopter isn't flagged stale because of the previous adopter's old visit.
+  const times = [spot.lastCheckIn?.at, spot.adoptedAt]
+    .filter(Boolean)
+    .map((t) => new Date(t).getTime());
+  const lastSeen = times.length ? Math.max(...times) : null;
+  const daysSinceCheck =
+    lastSeen !== null ? Math.floor((now.getTime() - lastSeen) / DAY_MS) : null;
+  return {
+    adopted,
+    stale: adopted && daysSinceCheck !== null && daysSinceCheck >= STALE_AFTER_DAYS,
+    daysSinceCheck,
+    needsAttention: ["dumped", "needs_attention"].includes(spot.lastCheckIn?.condition),
+  };
+}
