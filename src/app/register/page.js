@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -11,9 +11,10 @@ const ROLE_HOME = {
   volunteer: "/volunteer",
 };
 
+// No admin option: operations accounts are provisioned, not self-registered
+// (the register API rejects role "admin" too).
 const ROLE_OPTIONS = [
   { value: "resident", label: "Resident" },
-  { value: "admin", label: "Operations / Scheduling Admin" },
   { value: "employee", label: "Collection Crew" },
   { value: "volunteer", label: "Community Volunteer" },
 ];
@@ -29,6 +30,32 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Zones come from the admin-managed Zone list (GET /api/zones is
+  // PUBLIC — see src/app/api/zones/route.js — specifically so this page
+  // can populate the dropdown before the visitor has a session at all).
+  const [zones, setZones] = useState([]);
+  const [zonesLoading, setZonesLoading] = useState(true);
+  const [zonesError, setZonesError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/zones")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setZones(data.zones || []);
+      })
+      .catch((err) => {
+        console.error("RegisterPage loadZones error:", err);
+        if (!cancelled) setZonesError("Could not load zones.");
+      })
+      .finally(() => {
+        if (!cancelled) setZonesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function update(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -135,18 +162,43 @@ export default function RegisterPage() {
               ))}
             </select>
           </div>
+
+          {/* Was a free-text input — now sourced from the admin-managed
+              Zone list, so a resident can only pick a zone that actually
+              exists (and matches exactly what schedules/routes use). */}
           {form.role === "resident" && (
             <div>
               <label className="field-label" htmlFor="zone">
                 Zone / ward
               </label>
-              <input
+              <select
                 id="zone"
-                placeholder="e.g. Ward 4"
+                required
                 className="field-input"
                 value={form.zone}
                 onChange={update("zone")}
-              />
+                disabled={zonesLoading || zones.length === 0}
+              >
+                <option value="">
+                  {zonesLoading
+                    ? "Loading zones…"
+                    : zones.length === 0
+                    ? "No zones available yet"
+                    : "Select your zone"}
+                </option>
+                {zones.map((z) => (
+                  <option key={z._id} value={z.name}>
+                    {z.name}
+                  </option>
+                ))}
+              </select>
+              {zonesError && <p className="mt-1 text-xs text-red-600">{zonesError}</p>}
+              {!zonesLoading && !zonesError && zones.length === 0 && (
+                <p className="mt-1 text-xs text-loop-500">
+                  No zones have been set up yet — an administrator needs to
+                  add one before residents can register.
+                </p>
+              )}
             </div>
           )}
 

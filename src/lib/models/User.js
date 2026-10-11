@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema(
     // means "never changed since registration" — this is display-only info
     // for the profile page, it doesn't gate auth or invalidate sessions.
     passwordChangedAt: { type: Date, default: null },
+    // Forgot-password flow (CPT-27). Only a SHA-256 hash of the reset
+    // token is stored, so a DB leak can't be replayed into account
+    // takeover. Both fields are select:false like passwordHash.
+    passwordResetTokenHash: { type: String, default: null, select: false },
+    passwordResetExpiresAt: { type: Date, default: null, select: false },
   },
   { timestamps: true }
 );

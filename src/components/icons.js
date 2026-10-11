@@ -94,3 +94,12 @@ export function IconRefresh(props) {
     </svg>
   );
 }
+
+export function IconBell(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15Z" />
+      <path d="M10 20.5a2 2 0 0 0 4 0" />
+    </svg>
+  );
+}

@@ -24,13 +24,23 @@ export default function ResourceManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Filters
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
 
-  // Modal state: null = closed, "new" = create mode, <object> = edit mode
   const [modalTarget, setModalTarget] = useState(null);
+
+  // Zones fetched once here, passed down to the modal, rather than
+  // re-fetched every time the modal opens — the modal's zone field is a
+  // dropdown sourced from this list (see ResourceFormModal.js).
+  const [zones, setZones] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/zones")
+      .then((r) => r.json())
+      .then((data) => setZones(data.zones || []))
+      .catch((err) => console.error("ResourceManager loadZones error:", err));
+  }, []);
 
   const fetchResources = useCallback(async () => {
     setLoading(true);
@@ -60,8 +70,6 @@ export default function ResourceManager() {
   }, [category, status, q]);
 
   useEffect(() => {
-    // Debounce the search input specifically, so we're not firing a
-    // request on every keystroke — category/status changes fetch instantly.
     const t = setTimeout(fetchResources, q ? 350 : 0);
     return () => clearTimeout(t);
   }, [fetchResources, q]);
@@ -86,8 +94,6 @@ export default function ResourceManager() {
     }
   }
 
-  // Called by the modal after a successful create/update, so the table
-  // doesn't need a full refetch.
   function handleSaved(saved) {
     setResources((prev) => {
       const exists = prev.some((r) => r._id === saved._id);
@@ -101,7 +107,6 @@ export default function ResourceManager() {
 
   return (
     <div className="mt-8">
-      {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <select
           value={category}
@@ -144,7 +149,6 @@ export default function ResourceManager() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="mt-5 overflow-x-auto rounded-[3px] border border-loop-200">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-loop-100 text-xs uppercase tracking-wide text-loop-500">
@@ -234,6 +238,7 @@ export default function ResourceManager() {
       {modalTarget && (
         <ResourceFormModal
           target={modalTarget === "new" ? null : modalTarget}
+          zones={zones}
           onClose={() => setModalTarget(null)}
           onSaved={handleSaved}
         />

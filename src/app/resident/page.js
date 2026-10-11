@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "@/components/StatusBadge";
+import CollectionSchedule from "@/components/resident/CollectionSchedule";
+import ZoneProgress from "@/components/resident/ZoneProgress";
 
 const TYPE_LABELS = {
   missed_collection: "Missed collection",
@@ -12,25 +14,26 @@ const TYPE_LABELS = {
 };
 
 export default function ResidentPage() {
-  const [schedules, setSchedules] = useState([]);
+  const [zone, setZone] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({ type: "missed_collection", description: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Schedule + today's progress now load inside their own components
+  // (CollectionSchedule / ZoneProgress), each with loading/error states.
   async function loadData() {
-    const [scheduleRes, complaintRes] = await Promise.all([
-      fetch("/api/schedules"),
-      fetch("/api/complaints"),
-    ]);
-    const scheduleData = await scheduleRes.json();
+    const complaintRes = await fetch("/api/complaints");
     const complaintData = await complaintRes.json();
-    setSchedules(scheduleData.schedules || []);
     setComplaints(complaintData.complaints || []);
   }
 
   useEffect(() => {
     loadData();
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => setZone(data.user?.zone || null))
+      .catch((err) => console.error("ResidentPage loadMe error:", err));
   }, []);
 
   async function handleSubmit(e) {
@@ -54,25 +57,9 @@ export default function ResidentPage() {
 
   return (
     <div className="space-y-8">
-      <section>
-        <h2 className="font-display text-base font-semibold text-loop-950 mb-3">
-          Your collection schedule
-        </h2>
-        {schedules.length === 0 ? (
-          <p className="card text-sm text-loop-700">
-            No schedule has been published for your zone yet. Check back soon.
-          </p>
-        ) : (
-          <div className="card divide-y divide-loop-100">
-            {schedules.map((s) => (
-              <div key={s._id} className="flex justify-between py-2 first:pt-0 last:pb-0">
-                <span className="text-sm font-medium text-loop-900">{s.dayOfWeek}</span>
-                <span className="text-sm capitalize text-loop-700">{s.wasteType}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <ZoneProgress />
+
+      <CollectionSchedule zone={zone} />
 
       <section>
         <h2 className="font-display text-base font-semibold text-loop-950 mb-3">

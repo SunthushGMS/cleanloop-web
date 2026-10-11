@@ -30,6 +30,13 @@ module.exports = {
           500: "#E2A33B",
           600: "#C4841F",
         },
+        // Dashboard page background + error/alert tone. Both were already
+        // used (bg-sand, text-clay-600, bg-clay-500/15) but never defined.
+        sand: "#EFEDE4",
+        clay: {
+          500: "#B4532A",
+          600: "#9A4322",
+        },
       },
       fontFamily: {
         // Wired up via CSS variables set in app/layout.js using next/font.

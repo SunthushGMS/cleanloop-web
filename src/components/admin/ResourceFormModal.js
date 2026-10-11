@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 
-// Which extra `meta` fields to show per category, and how to label them.
-// Add a row here to add a new category-specific field — the form body
-// below reads this table, no other changes needed.
 const META_FIELDS = {
   bin: [{ key: "capacity", label: "Capacity", placeholder: "e.g. 120L" }],
   truck: [
@@ -33,7 +30,7 @@ function emptyForm() {
   };
 }
 
-export default function ResourceFormModal({ target, onClose, onSaved }) {
+export default function ResourceFormModal({ target, zones = [], onClose, onSaved }) {
   const isEdit = Boolean(target);
 
   const [form, setForm] = useState(() => {
@@ -104,7 +101,6 @@ export default function ResourceFormModal({ target, onClose, onSaved }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-loop-950/50 p-4"
       onClick={onClose}
     >
-      {/* Stop propagation so clicking inside the card doesn't close the modal */}
       <div
         className="w-full max-w-lg rounded-[3px] bg-loop-50 p-6 shadow-card"
         onClick={(e) => e.stopPropagation()}
@@ -194,14 +190,23 @@ export default function ResourceFormModal({ target, onClose, onSaved }) {
               </select>
             </Field>
 
+            {/* Was a free-text input — now sourced from the admin-managed
+                Zone list (passed down from ResourceManager). "No zone
+                assigned" keeps this optional, matching Resource.zone's
+                schema default of "". */}
             <Field label="Zone">
-              <input
-                type="text"
+              <select
                 value={form.zone}
                 onChange={(e) => update("zone", e.target.value)}
                 className="field-input"
-                placeholder="e.g. Zone 3 — Elm St"
-              />
+              >
+                <option value="">No zone assigned</option>
+                {zones.map((z) => (
+                  <option key={z._id} value={z.name}>
+                    {z.name}
+                  </option>
+                ))}
+              </select>
             </Field>
 
             <Field label="Last serviced">
@@ -213,7 +218,6 @@ export default function ResourceFormModal({ target, onClose, onSaved }) {
               />
             </Field>
 
-            {/* Category-specific fields, driven by META_FIELDS above */}
             {metaFields.map((f) => (
               <Field key={f.key} label={f.label}>
                 <input
@@ -248,10 +252,6 @@ export default function ResourceFormModal({ target, onClose, onSaved }) {
         </form>
       </div>
 
-      {/* Scoped styles for the repeated input look — kept local to this
-          modal rather than added to globals.css since it's only used here.
-          If you end up needing this input style elsewhere, promote it to
-          a `.input` class in globals.css @layer components instead. */}
       <style jsx>{`
         :global(.input) {
           width: 100%;

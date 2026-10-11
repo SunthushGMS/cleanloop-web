@@ -69,6 +69,19 @@
   .manifest-label {
     @apply font-mono text-[11px] uppercase tracking-[0.22em] text-loop-400;
   }
+
+  /* --- Form primitives --------------------------------------------------
+     Referenced by every form in the app but previously undefined (see
+     TECHNICAL_HANDOFF.md known issue #4), so inputs rendered unstyled. */
+  .field-label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-loop-500;
+  }
+  .field-input {
+    @apply block w-full rounded-[3px] border border-loop-300 bg-white px-3 py-2 text-sm
+      text-loop-900 transition-colors duration-150 placeholder:text-loop-400
+      hover:border-loop-400 focus:border-amber-500 focus:outline-none
+      disabled:cursor-not-allowed disabled:bg-loop-100 disabled:text-loop-400;
+  }
 }
 
 @layer utilities {
