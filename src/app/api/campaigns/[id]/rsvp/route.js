@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Campaign from "@/lib/models/Campaign";
 import { requireUser } from "@/lib/requireUser";
+import { isPastCampaignDate } from "@/lib/campaignDates";
 
 // POST /api/campaigns/:id/rsvp — resident or volunteer marks themselves as attending.
 export async function POST(request, { params }) {
@@ -23,6 +24,13 @@ export async function POST(request, { params }) {
 
   if (!campaign) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+  }
+
+  if (isPastCampaignDate(campaign.date)) {
+    return NextResponse.json(
+      { error: "This campaign has already taken place" },
+      { status: 400 }
+    );
   }
 
   if (campaign.organizer.toString() === session.sub) {
