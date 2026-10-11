@@ -130,6 +130,22 @@ export default function ResidentPage() {
           )}
         </div>
       </section>
+
+      <section>
+        <div className="card flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-base font-semibold text-loop-950">
+              Community campaigns
+            </h2>
+            <p className="text-sm text-loop-700">
+              Join a local clean-up or recycling drive organized by volunteers.
+            </p>
+          </div>
+          <Link href="/campaigns" className="btn-primary shrink-0">
+            View campaigns
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

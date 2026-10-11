@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Campaign from "@/lib/models/Campaign";
 import { requireUser } from "@/lib/requireUser";
+import { isPastCampaignDate } from "@/lib/campaignDates";
+import { isCancelled } from "@/lib/campaignAccess";
 
 // POST /api/campaigns/:id/rsvp — resident or volunteer marks themselves as attending.
 export async function POST(request, { params }) {
@@ -25,6 +27,17 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
   }
 
+  if (isCancelled(campaign)) {
+    return NextResponse.json({ error: "This campaign has been cancelled" }, { status: 400 });
+  }
+
+  if (isPastCampaignDate(campaign.date)) {
+    return NextResponse.json(
+      { error: "This campaign has already taken place" },
+      { status: 400 }
+    );
+  }
+
   if (campaign.organizer.toString() === session.sub) {
     return NextResponse.json(
       { error: "Organizers cannot RSVP to their own campaign" },
@@ -32,17 +45,19 @@ export async function POST(request, { params }) {
     );
   }
 
-  const alreadyRsvped = campaign.attendees.some(
-    (a) => a.user.toString() === session.sub
-  );
-  if (alreadyRsvped) {
-    return NextResponse.json({ error: "Already RSVP'd" }, { status: 409 });
-  }
-
+  // Single atomic update: the filter only matches if this user isn't already
+  // an attendee, so two simultaneous requests (e.g. a double-click) can't
+  // both add them. No match means they were already on the list.
   try {
-    campaign.attendees.push({ user: session.sub });
-    await campaign.save();
-    return NextResponse.json({ campaign });
+    const updated = await Campaign.findOneAndUpdate(
+      { _id: campaign._id, "attendees.user": { $ne: session.sub } },
+      { $push: { attendees: { user: session.sub, rsvpedAt: new Date() } } },
+      { new: true }
+    );
+    if (!updated) {
+      return NextResponse.json({ error: "Already RSVP'd" }, { status: 409 });
+    }
+    return NextResponse.json({ campaign: updated });
   } catch (err) {
     console.error("POST /api/campaigns/:id/rsvp save error:", err);
     return NextResponse.json({ error: "Could not process RSVP" }, { status: 500 });
@@ -71,18 +86,18 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
   }
 
-  const before = campaign.attendees.length;
-  campaign.attendees = campaign.attendees.filter(
-    (a) => a.user.toString() !== session.sub
-  );
-
-  if (campaign.attendees.length === before) {
-    return NextResponse.json({ error: "No RSVP found to cancel" }, { status: 404 });
-  }
-
+  // Single atomic update, mirroring POST: only matches if the user is
+  // currently an attendee, and removes every entry for them.
   try {
-    await campaign.save();
-    return NextResponse.json({ campaign });
+    const updated = await Campaign.findOneAndUpdate(
+      { _id: campaign._id, "attendees.user": session.sub },
+      { $pull: { attendees: { user: session.sub } } },
+      { new: true }
+    );
+    if (!updated) {
+      return NextResponse.json({ error: "No RSVP found to cancel" }, { status: 404 });
+    }
+    return NextResponse.json({ campaign: updated });
   } catch (err) {
     console.error("DELETE /api/campaigns/:id/rsvp save error:", err);
     return NextResponse.json({ error: "Could not cancel RSVP" }, { status: 500 });

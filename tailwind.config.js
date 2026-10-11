@@ -30,12 +30,15 @@ module.exports = {
           500: "#E2A33B",
           600: "#C4841F",
         },
-        // Dashboard page background + error/alert tone. Both were already
-        // used (bg-sand, text-clay-600, bg-clay-500/15) but never defined.
-        sand: "#EFEDE4",
+        // App-shell background for the role dashboards (bg-sand). Same value as
+        // loop-100 so dashboards match the root body background.
+        sand: "#F0EEE3",
+        // Clay — error text and "open" status badges (text-clay-600,
+        // bg-clay-500/15). A muted terracotta that sits with the earthy palette
+        // and stays readable on the light paper surfaces.
         clay: {
-          500: "#B4532A",
-          600: "#9A4322",
+          500: "#B8572F",
+          600: "#9C4424",
         },
       },
       fontFamily: {
