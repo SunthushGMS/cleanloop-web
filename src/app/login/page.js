@@ -11,6 +11,16 @@ const ROLE_HOME = {
   volunteer: "/volunteer",
 };
 
+// Only follow ?next= when it's an in-app path. "//evil.com" and
+// "/\evil.com" are protocol-relative to browsers, so they're rejected too —
+// otherwise the login form doubles as an open redirect for phishing links.
+function safeNextPath(next) {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
+    return null;
+  }
+  return next;
+}
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -48,8 +58,8 @@ function LoginForm() {
         return;
       }
 
-      const next = searchParams.get("next");
-      const destination = next || ROLE_HOME[data.user.role] || "/";
+      const destination =
+        safeNextPath(searchParams.get("next")) || ROLE_HOME[data.user.role] || "/";
       router.push(destination);
       router.refresh();
     } catch {
@@ -68,6 +78,12 @@ function LoginForm() {
           Residents, operations, crew, and volunteers all sign in here.
         </p>
 
+        {searchParams.get("reset") === "1" && (
+          <p className="mt-4 rounded-[3px] bg-loop-700/10 px-3 py-2 text-sm text-loop-700">
+            Password reset. Log in with your new password.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label className="field-label" htmlFor="email">
@@ -84,9 +100,14 @@ function LoginForm() {
             />
           </div>
           <div>
-            <label className="field-label" htmlFor="password">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="field-label" htmlFor="password">
+                Password
+              </label>
+              <Link href="/forgot-password" className="text-xs text-loop-700 underline">
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"

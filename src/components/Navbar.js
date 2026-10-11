@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 export default function Navbar({ user, title }) {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function Navbar({ user, title }) {
         <h1 className="font-display text-lg font-semibold text-loop-950">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
+        {user && <NotificationBell />}
         {user && (
           // The name/role chip now doubles as the entry point into account
           // settings — no extra nav item needed, one obvious click target.

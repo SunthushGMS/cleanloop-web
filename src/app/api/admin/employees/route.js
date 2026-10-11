@@ -5,7 +5,10 @@ import { requireUser } from "@/lib/requireUser";
 
 /**
  * GET /api/admin/employees
- * Collection crew members (id + name only) for the driver dropdown.
+ * ---------------------------------------------------------------------
+ * Feeds the "Crew member" dropdown in RouteBuilder. Admin-only — this is
+ * account data (name + email), not something other roles should be able
+ * to enumerate.
  */
 export async function GET() {
   const session = requireUser(["admin"]);
@@ -14,12 +17,13 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const users = await User.find({ role: "employee" }).select("name").sort({ name: 1 }).lean();
-    return NextResponse.json({
-      employees: users.map((u) => ({ id: String(u._id), name: u.name })),
-    });
+    const employees = await User.find({ role: "employee" })
+      .select("_id name email")
+      .sort({ name: 1 })
+      .lean();
+    return NextResponse.json({ employees });
   } catch (err) {
     console.error("GET /api/admin/employees error:", err);
-    return NextResponse.json({ error: "Could not load employees" }, { status: 500 });
+    return NextResponse.json({ error: "Could not load crew members" }, { status: 500 });
   }
 }

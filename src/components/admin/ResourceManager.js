@@ -14,14 +14,24 @@ export default function ResourceManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Filters
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
   const [condition, setCondition] = useState("");
   const [q, setQ] = useState("");
 
-  // Modal state: null = closed, "new" = create mode, <object> = edit mode
   const [modalTarget, setModalTarget] = useState(null);
+
+  // Zones fetched once here, passed down to the modal, rather than
+  // re-fetched every time the modal opens — the modal's zone field is a
+  // dropdown sourced from this list (see ResourceFormModal.js).
+  const [zones, setZones] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/zones")
+      .then((r) => r.json())
+      .then((data) => setZones(data.zones || []))
+      .catch((err) => console.error("ResourceManager loadZones error:", err));
+  }, []);
 
   const fetchResources = useCallback(async () => {
     setLoading(true);
@@ -52,8 +62,6 @@ export default function ResourceManager() {
   }, [category, status, condition, q]);
 
   useEffect(() => {
-    // Debounce the search input specifically, so we're not firing a
-    // request on every keystroke — dropdown filters fetch instantly.
     const t = setTimeout(fetchResources, q ? 350 : 0);
     return () => clearTimeout(t);
   }, [fetchResources, q]);
@@ -78,8 +86,6 @@ export default function ResourceManager() {
     }
   }
 
-  // Called by the modal after a successful create/update, so the table
-  // doesn't need a full refetch.
   function handleSaved(saved) {
     setResources((prev) => {
       const exists = prev.some((r) => r._id === saved._id);
@@ -95,7 +101,30 @@ export default function ResourceManager() {
 
   return (
     <div className="mt-8">
-      <ResourceStats />
+      <div className="flex flex-wrap items-center gap-3">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="rounded-[3px] border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
+        >
+          <option value="">All categories</option>
+          <option value="bin">Bins</option>
+          <option value="truck">Trucks</option>
+          <option value="ppe">PPE</option>
+          <option value="other">Other</option>
+        </select>
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="rounded-[3px] border border-loop-200 bg-loop-50 px-3 py-2 text-sm text-loop-900"
+        >
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="retired">Retired</option>
+          <option value="out_of_stock">Out of stock</option>
+        </select>
 
       {/* Filter bar — stacks to full-width rows on mobile, inline on sm: up */}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -176,11 +205,28 @@ export default function ResourceManager() {
         </button>
       </div>
 
-      {hasActiveFilters && !loading && !error && (
-        <p className="mt-3 text-xs text-loop-500">
-          {resources.length} resource{resources.length === 1 ? "" : "s"} match these filters.
-        </p>
-      )}
+      <div className="mt-5 overflow-x-auto rounded-[3px] border border-loop-200">
+        <table className="w-full min-w-[720px] text-left text-sm">
+          <thead className="bg-loop-100 text-xs uppercase tracking-wide text-loop-500">
+            <tr>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Category</th>
+              <th className="px-4 py-3">ID / Tag</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Qty</th>
+              <th className="px-4 py-3">Zone</th>
+              <th className="px-4 py-3">Condition</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-loop-200">
+            {loading && (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-loop-500">
+                  Loading resources…
+                </td>
+              </tr>
+            )}
 
       {/* Loading / error / empty states, shared by both layouts below */}
       {loading && (
@@ -328,6 +374,7 @@ export default function ResourceManager() {
       {modalTarget && (
         <ResourceFormModal
           target={modalTarget === "new" ? null : modalTarget}
+          zones={zones}
           onClose={() => setModalTarget(null)}
           onSaved={handleSaved}
         />

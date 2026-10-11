@@ -65,20 +65,23 @@
       font-mono text-[11px] uppercase tracking-[0.14em];
   }
 
+  /* --- Forms ------------------------------------------------------------ */
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-loop-900;
+  }
+
+  .field-input {
+    @apply block w-full rounded-[3px] border border-loop-300 bg-white px-3 py-2
+      text-sm text-loop-900 placeholder:text-loop-400 transition-colors
+      duration-150 hover:border-loop-500 focus:border-loop-700
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
   /* Small mono "manifest" label — used for route codes / eyebrows on dark bg */
   .manifest-label {
     @apply font-mono text-[11px] uppercase tracking-[0.22em] text-loop-400;
   }
 
-  /* --- Forms ---------------------------------------------------------- */
-  .field-label {
-    @apply mb-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-loop-500;
-  }
-
-  .field-input {
-    @apply w-full rounded-[3px] border border-loop-200 bg-white px-3 py-2
-      text-sm text-loop-900 placeholder:text-loop-300 focus:border-loop-500;
-  }
 }
 
 @layer utilities {
