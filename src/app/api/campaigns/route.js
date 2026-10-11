@@ -27,15 +27,46 @@ const CreateCampaignSchema = z.object({
     .refine((date) => !isPastCampaignDate(date), "Campaign date can't be in the past"),
 });
 
-// GET /api/campaigns — upcoming campaigns, visible to any authenticated user.
-export async function GET() {
+const ListQuerySchema = z.object({
+  // all: every campaign; mine: ones I organize; joined: ones I RSVP'd to.
+  scope: z.enum(["all", "mine", "joined"]).default("all"),
+  when: z.enum(["upcoming", "past", "all"]).default("upcoming"),
+});
+
+/**
+ * GET /api/campaigns?scope=all|mine|joined&when=upcoming|past|all
+ * Defaults to scope=all&when=upcoming. Visible to any authenticated user.
+ * Cancelled campaigns are included (the UI badges them) so people who
+ * RSVP'd can see the cancellation instead of the card vanishing.
+ */
+export async function GET(request) {
   const session = requireUser(["resident", "admin", "employee", "volunteer"]);
   if (session instanceof NextResponse) return session;
 
+  const { searchParams } = new URL(request.url);
+  const parsed = ListQuerySchema.safeParse({
+    scope: searchParams.get("scope") ?? undefined,
+    when: searchParams.get("when") ?? undefined,
+  });
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid query", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+  const { scope, when } = parsed.data;
+
+  const filter = {};
+  if (scope === "mine") filter.organizer = session.sub;
+  if (scope === "joined") filter["attendees.user"] = session.sub;
+  if (when === "upcoming") filter.date = { $gte: earliestTodayUTC() };
+  if (when === "past") filter.date = { $lt: earliestTodayUTC() };
+
   try {
     await dbConnect();
-    const campaigns = await Campaign.find({ date: { $gte: earliestTodayUTC() } })
-      .sort({ date: 1 })
+    // Upcoming lists read soonest-first; history reads most-recent-first.
+    const campaigns = await Campaign.find(filter)
+      .sort({ date: when === "upcoming" ? 1 : -1 })
       .lean();
     return NextResponse.json({ campaigns });
   } catch (err) {
