@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
+import Zone from "@/lib/models/Zone";
 import { requireUser } from "@/lib/requireUser";
 import { verifyPassword } from "@/lib/auth";
 
@@ -13,14 +14,18 @@ const ProfileUpdateSchema = z
     name: z.string().trim().min(2, "Name must be at least 2 characters").max(80).optional(),
     email: z.string().trim().toLowerCase().email("Enter a valid email").max(120).optional(),
     currentPassword: z.string().optional(),
+    // Resident-only (checked below): moving house means a new zone, which
+    // changes whose schedule, alerts, and progress they see.
+    zone: z.string().trim().min(1, "Select a zone").max(80).optional(),
   })
-  .refine((data) => data.name !== undefined || data.email !== undefined, {
+  .refine((data) => data.name !== undefined || data.email !== undefined || data.zone !== undefined, {
     message: "Nothing to update",
   });
 
 /**
  * PATCH /api/auth/profile
- * Body: { name? } to rename, or { email, currentPassword } to change email.
+ * Body: { name? } to rename, { email, currentPassword } to change email,
+ * or { zone } (residents only) to move to another zone / ward.
  * Any authenticated role can hit this — it's scoped to the caller's own
  * account via session.sub, never an id in the URL/body.
  */
@@ -43,7 +48,7 @@ export async function PATCH(request) {
     );
   }
 
-  const { name, email, currentPassword } = parsed.data;
+  const { name, email, currentPassword, zone } = parsed.data;
 
   await dbConnect();
 
@@ -82,6 +87,19 @@ export async function PATCH(request) {
 
   if (name) {
     user.name = name;
+  }
+
+  if (zone !== undefined && zone !== user.zone) {
+    if (user.role !== "resident") {
+      return NextResponse.json(
+        { error: "Only resident accounts have a zone / ward" },
+        { status: 400 }
+      );
+    }
+    if (!(await Zone.exists({ name: zone }))) {
+      return NextResponse.json({ error: "Select a valid zone / ward" }, { status: 400 });
+    }
+    user.zone = zone;
   }
 
   try {

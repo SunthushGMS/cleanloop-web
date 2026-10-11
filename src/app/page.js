@@ -105,7 +105,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       {/* ================================================================
-          HERO — dark "ink" surface, film-grain + amber glow for the
+          HERO — dark "ink" surface, film-grain + emerald glow for the
           cinematic read, RouteMap as the signature element on the right.
       ================================================================= */}
       <div className="relative overflow-hidden bg-loop-900 bg-hero-glow grain">
@@ -157,7 +157,7 @@ export default function HomePage() {
                   <dt className="sr-only">{s.label}</dt>
                   <dd className="font-mono text-2xl font-medium text-loop-50">
                     {s.value}
-                    <span className="text-sm text-amber-500">{s.unit}</span>
+                    <span className="text-sm text-brand-400">{s.unit}</span>
                   </dd>
                   <dd className="manifest-label mt-1 max-w-[9rem] normal-case tracking-normal text-loop-400">
                     {s.label}
@@ -225,7 +225,7 @@ export default function HomePage() {
               <Reveal key={role.title} delay={i * 90}>
                 <article className="card h-full">
                   <div className="flex items-start justify-between gap-4">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-[3px] bg-loop-900 text-amber-500">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                       <role.icon />
                     </span>
                     <span className="manifest-label text-loop-300">{role.code}</span>

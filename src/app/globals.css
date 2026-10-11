@@ -5,9 +5,9 @@
 @layer base {
   /* Visible keyboard focus everywhere — cheap to add, easy to forget. */
   :focus-visible {
-    outline: 2px solid theme("colors.amber.500");
+    outline: 2px solid theme("colors.brand.500");
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 
   /* Respect reduced-motion: kill the loop-travel + fade-up animations for
@@ -25,61 +25,67 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    font-family: var(--font-sans);
+    letter-spacing: -0.015em;
   }
 }
 
 @layer components {
   /* --- Buttons -------------------------------------------------------- */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px]
-      bg-amber-500 px-5 py-2.5 text-sm font-semibold text-loop-900
-      transition-colors duration-150 hover:bg-amber-400
-      focus-visible:bg-amber-400;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+      bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm
+      transition-colors duration-150 hover:bg-brand-700
+      focus-visible:bg-brand-700 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px]
-      border border-loop-300 bg-transparent px-5 py-2.5 text-sm font-semibold
-      text-loop-900 transition-colors duration-150 hover:border-loop-500
-      hover:bg-loop-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+      border border-loop-300 bg-white px-4 py-2 text-sm font-semibold
+      text-loop-700 shadow-sm transition-colors duration-150
+      hover:bg-loop-50 hover:text-loop-900 disabled:cursor-not-allowed;
   }
 
-  /* A variant of the buttons for use on the dark hero / footer surfaces,
-     where .btn-secondary's dark-on-dark text would disappear. */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+      bg-clay-600 px-4 py-2 text-sm font-semibold text-white shadow-sm
+      transition-colors duration-150 hover:bg-clay-700;
+  }
+
+  /* For the dark landing-page hero / footer surfaces. */
   .btn-secondary-on-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px]
-      border border-white/20 bg-transparent px-5 py-2.5 text-sm font-semibold
-      text-loop-50 transition-colors duration-150 hover:border-white/40
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+      border border-white/20 bg-transparent px-4 py-2 text-sm font-semibold
+      text-white transition-colors duration-150 hover:border-white/40
       hover:bg-white/5;
   }
 
   /* --- Surfaces --------------------------------------------------------- */
   .card {
-    @apply rounded-[3px] border border-loop-200 bg-loop-50 p-6 shadow-card;
+    @apply rounded-xl border border-loop-200 bg-white p-6 shadow-card;
   }
 
   .badge {
-    @apply inline-flex items-center gap-2 rounded-full px-3 py-1
-      font-mono text-[11px] uppercase tracking-[0.14em];
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full
+      px-2.5 py-0.5 text-xs font-medium;
   }
 
   /* --- Forms ------------------------------------------------------------ */
   .field-label {
-    @apply mb-1.5 block text-sm font-medium text-loop-900;
+    @apply mb-1.5 block text-sm font-medium text-loop-700;
   }
 
   .field-input {
-    @apply block w-full rounded-[3px] border border-loop-300 bg-white px-3 py-2
-      text-sm text-loop-900 placeholder:text-loop-400 transition-colors
-      duration-150 hover:border-loop-500 focus:border-loop-700
-      disabled:cursor-not-allowed disabled:opacity-60;
+    @apply block w-full rounded-lg border border-loop-300 bg-white px-3 py-2
+      text-sm text-loop-900 shadow-sm placeholder:text-loop-400
+      transition-colors duration-150 hover:border-loop-400
+      focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20
+      disabled:cursor-not-allowed disabled:bg-loop-50 disabled:text-loop-400;
   }
 
-  /* Small mono "manifest" label — used for route codes / eyebrows on dark bg */
+  /* Small uppercase eyebrow label (stat tiles, section kickers). */
   .manifest-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.22em] text-loop-400;
+    @apply text-xs font-semibold uppercase tracking-wider text-loop-500;
   }
 }
 

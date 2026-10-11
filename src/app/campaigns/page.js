@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CampaignCard from "@/components/campaigns/CampaignCard";
+import PageHeader from "@/components/layout/PageHeader";
 
 // Each tab is one GET /api/campaigns query. `roles` = who sees the tab.
 const TABS = {
@@ -106,6 +107,10 @@ function CampaignsView() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Community campaigns"
+        description="Clean-up drives and recycling events near you. RSVP to join in."
+      />
       {tabs.length > 1 && (
         <div role="tablist" aria-label="Campaign lists" className="flex flex-wrap gap-2">
           {tabs.map((key) => (

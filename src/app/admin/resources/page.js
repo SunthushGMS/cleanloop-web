@@ -1,20 +1,18 @@
+import PageHeader from "@/components/layout/PageHeader";
 import ResourceManager from "@/components/admin/ResourceManager";
 
 export const metadata = {
-  title: "Resources — CleanLoop Admin",
+  title: "Resources — CleanLoop",
 };
 
-export default function AdminResourcesPage() {
+export default function Page() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="font-display text-2xl font-bold text-loop-950">
-        Resource manager
-      </h1>
-      <p className="mt-1 text-sm text-loop-500">
-        Track bins, trucks, and PPE — status, condition, and zone assignment.
-      </p>
-
+    <>
+      <PageHeader
+        title="Resources"
+        description="Register and track bins, trucks, and PPE: status, condition, and zone assignment."
+      />
       <ResourceManager />
-    </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/layout/PageHeader";
 
 const EMPTY_FORM = { title: "", description: "", zone: "", date: "" };
 
@@ -69,6 +70,15 @@ export default function VolunteerPage() {
 
   return (
     <div className="space-y-8">
+      <PageHeader
+        title="Volunteer portal"
+        description="Organize clean-up campaigns and rally your neighbours."
+        actions={
+          <Link href="/campaigns" className="btn-secondary">
+            Browse campaigns
+          </Link>
+        }
+      />
       <section>
         <div className="card flex items-center justify-between gap-4">
           <div>

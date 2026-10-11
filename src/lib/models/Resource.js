@@ -1,19 +1,16 @@
 import mongoose from "mongoose";
+import {
+  CATEGORY_VALUES,
+  STATUS_VALUES,
+  CONDITION_VALUES,
+} from "@/lib/resourceConstants";
+import { METHOD_VALUES } from "@/lib/lifecycleConstants";
 
 /**
  * Resource
- * ----------------------------------------------------------------------
- * Covers all three equipment categories (bin / truck / ppe) with one
- * schema rather than three, since they share the same lifecycle (status,
- * condition, zone assignment, servicing). Category-specific attributes
- * that don't apply to every type — a truck's plate number, a bin's
- * capacity, a PPE item's size — go in `meta` (a flexible string map)
- * instead of being modeled as separate optional fields on every document.
- *
- * If this ever needs strict per-category validation (e.g. "trucks must
- * have a plate number"), the right move is a Mongoose discriminator per
- * category rather than more optional top-level fields — flag it if you
- * get there and I'll refactor this into that shape.
+ * One schema for all vehicles and equipment. Truly category-specific extras
+ * (fuel type, PPE size, ...) live in `meta`. Common registration data
+ * (registration number, make/model, purchase info) are real fields.
  */
 const ResourceSchema = new mongoose.Schema(
   {
@@ -24,71 +21,54 @@ const ResourceSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["bin", "truck", "ppe", "other"],
+      enum: CATEGORY_VALUES,
       required: [true, "Category is required"],
     },
-    // Asset tag / plate number / serial number — whatever uniquely IDs
-    // this specific item on a clipboard. Not enforced unique at the DB
-    // level since some orgs won't tag every bin.
-    identifier: {
-      type: String,
-      trim: true,
-      default: "",
+    // Asset tag / serial. Not unique at DB level (some items aren't tagged).
+    identifier: { type: String, trim: true, default: "" },
+    // Vehicle plate or equipment registration number.
+    registrationNumber: { type: String, trim: true, default: "" },
+    make: { type: String, trim: true, default: "" },
+    model: { type: String, trim: true, default: "" },
+    purchaseDate: { type: Date, default: null },
+    purchaseCost: {
+      type: Number,
+      min: [0, "Purchase cost cannot be negative"],
+      default: null,
     },
-    status: {
-      type: String,
-      enum: ["active", "maintenance", "retired", "out_of_stock"],
-      default: "active",
-    },
-    condition: {
-      type: String,
-      enum: ["new", "good", "fair", "poor"],
-      default: "good",
-    },
+    capacity: { type: String, trim: true, default: "" },
+    status: { type: String, enum: STATUS_VALUES, default: "active" },
+    condition: { type: String, enum: CONDITION_VALUES, default: "good" },
     quantity: {
       type: Number,
       default: 1,
       min: [0, "Quantity cannot be negative"],
     },
-    // Route/zone this resource is currently assigned to — free text for
-    // now so it doesn't hard-depend on a Zone model existing yet.
-    zone: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    // Optional link to the crew member responsible for it (e.g. a truck's
-    // assigned driver).
+    // Location / zone the resource is based in (free text for now).
+    zone: { type: String, trim: true, default: "" },
+    // Driver / operator name as free text. `assignedTo` below is reserved
+    // for the allocation feature (Step 3).
+    operatorName: { type: String, trim: true, default: "" },
+    warranty: { type: String, trim: true, default: "" },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
-    // Which admin logged this resource — set from the session in the POST
-    // route handler, never accepted from the client request body.
+    // Set from the session in POST, never accepted from the request body.
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
-    lastServicedAt: {
-      type: Date,
-      default: null,
-    },
-    notes: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    // Category-specific extras, e.g.:
-    //   bin   -> { capacity: "120L", liner: "yes" }
-    //   truck -> { plate: "WP-CAB-4021", fuelType: "diesel" }
-    //   ppe   -> { size: "L", expiresAt: "2027-01-01" }
-    meta: {
-      type: Map,
-      of: String,
-      default: {},
-    },
+    lastServicedAt: { type: Date, default: null },
+    nextMaintenanceAt: { type: Date, default: null },
+    // Depreciation settings. Empty = use the category defaults (see lifecycleConstants.js).
+    usefulLifeYears: { type: Number, min: [0.5, "Useful life must be at least 0.5 years"], default: null },
+    salvageValue: { type: Number, min: [0, "Salvage value cannot be negative"], default: null },
+    depreciationMethod: { type: String, enum: [...METHOD_VALUES, ""], default: "" },
+    notes: { type: String, trim: true, default: "" },
+    meta: { type: Map, of: String, default: {} },
   },
   { timestamps: true }
 );
@@ -96,5 +76,4 @@ const ResourceSchema = new mongoose.Schema(
 ResourceSchema.index({ category: 1, status: 1 });
 ResourceSchema.index({ name: "text", identifier: "text" });
 
-// Prevents Mongoose's "Cannot overwrite model" error during Next.js hot reload.
 export default mongoose.models.Resource || mongoose.model("Resource", ResourceSchema);

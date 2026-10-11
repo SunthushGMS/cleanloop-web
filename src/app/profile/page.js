@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import getCurrentUser from "@/lib/getCurrentUser";
 import ProfileManager from "@/components/ProfileManager";
+import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata = {
   title: "Account & security — CleanLoop",
@@ -18,12 +19,10 @@ export default async function ProfilePage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-loop-950">
-        Account &amp; security
-      </h1>
-      <p className="mt-1 text-sm text-loop-500">
-        Update your name, email, and password.
-      </p>
+      <PageHeader
+        title="Account & security"
+        description="Update your name, email, zone, and password."
+      />
 
       <ProfileManager initialUser={user} />
     </div>

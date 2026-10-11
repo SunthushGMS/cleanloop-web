@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
+import PageHeader from "@/components/layout/PageHeader";
 
 const TYPE_LABELS = {
   missed_collection: "Missed collection",
@@ -21,9 +22,10 @@ export default function ResidentComplaintsPage() {
 
   return (
     <div>
-      <h2 className="font-display text-base font-semibold text-loop-950 mb-3">
-        All your reports
-      </h2>
+      <PageHeader
+        title="My reports"
+        description="Every issue you have reported, and where it stands."
+      />
       <div className="space-y-3">
         {complaints.map((c) => (
           <div key={c._id} className="card flex items-start justify-between">

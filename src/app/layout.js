@@ -1,20 +1,10 @@
-import { Big_Shoulders_Display, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-// Display face — condensed + tall, reads like municipal route signage.
-// This is the one place the page's "voice" comes from, so weight range is
-// deliberately narrow (600/700 only) — we never want a thin, delicate cut of it.
-const display = Big_Shoulders_Display({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-// Body face — quiet, highly legible, does not compete with the display face.
+// Inter for both body and headings — a clean, product-UI typeface.
 const sans = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -37,8 +27,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body className="bg-loop-100 font-sans text-loop-900 antialiased">
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="bg-loop-50 font-sans text-loop-900 antialiased">
         {children}
       </body>
     </html>

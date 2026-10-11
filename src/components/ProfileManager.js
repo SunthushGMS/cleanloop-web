@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * ProfileManager
@@ -20,9 +20,10 @@ export default function ProfileManager({ initialUser }) {
   const [user, setUser] = useState(initialUser);
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="space-y-6">
       <AccountSummaryCard user={user} />
       <NameForm user={user} onUpdated={setUser} />
+      {user.role === "resident" && <ZoneForm user={user} onUpdated={setUser} />}
       <EmailForm user={user} onUpdated={setUser} />
       <PasswordForm />
     </div>
@@ -138,6 +139,91 @@ function NameForm({ user, onUpdated }) {
           className="btn-primary shrink-0 disabled:opacity-50"
         >
           {status.loading ? "Saving…" : "Save name"}
+        </button>
+      </form>
+      <FormFeedback status={status} />
+    </section>
+  );
+}
+
+// --- Zone form (residents only) -------------------------------------------
+
+function ZoneForm({ user, onUpdated }) {
+  const [zone, setZone] = useState(user.zone || "");
+  const [zones, setZones] = useState([]);
+  const [zonesLoading, setZonesLoading] = useState(true);
+  const [status, setStatus] = useState({ loading: false, error: "", success: "" });
+  const dirty = zone !== (user.zone || "");
+
+  useEffect(() => {
+    fetch("/api/zones")
+      .then((r) => r.json())
+      .then((data) => setZones(data.zones || []))
+      .catch((err) => console.error("ZoneForm loadZones error:", err))
+      .finally(() => setZonesLoading(false));
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!dirty || !zone) return;
+    setStatus({ loading: true, error: "", success: "" });
+
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ zone }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus({ loading: false, error: extractErrorMessage(data, "Could not update zone"), success: "" });
+        return;
+      }
+      onUpdated(data.user);
+      setStatus({
+        loading: false,
+        error: "",
+        success: "Zone updated. Your schedule and alerts now follow this zone.",
+      });
+    } catch {
+      setStatus({ loading: false, error: "Something went wrong. Please try again.", success: "" });
+    }
+  }
+
+  return (
+    <section className="card">
+      <h2 className="font-display text-base font-semibold text-loop-950">Zone / ward</h2>
+      <p className="mt-1 text-sm text-loop-500">
+        Moved house? Your collection schedule and truck alerts follow this zone.
+      </p>
+      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex-1">
+          <label className="field-label" htmlFor="profile-zone">
+            Zone
+          </label>
+          <select
+            id="profile-zone"
+            required
+            className="field-input"
+            value={zone}
+            onChange={(e) => setZone(e.target.value)}
+            disabled={zonesLoading}
+          >
+            <option value="">{zonesLoading ? "Loading zones…" : "Select your zone"}</option>
+            {zones.map((z) => (
+              <option key={z._id} value={z.name}>
+                {z.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="submit"
+          disabled={!dirty || !zone || status.loading}
+          className="btn-primary shrink-0 disabled:opacity-50"
+        >
+          {status.loading ? "Saving…" : "Save zone"}
         </button>
       </form>
       <FormFeedback status={status} />
