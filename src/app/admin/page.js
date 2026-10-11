@@ -91,6 +91,24 @@ export default function AdminPage() {
         </div>
       </section>
 
+      {/* Adopt-a-Spot (volunteer feature): link card only, no state or
+          logic here. The page itself is src/app/admin/spots/page.js. */}
+      <section>
+        <div className="card flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-base font-semibold text-loop-950">
+              Dumping spots
+            </h2>
+            <p className="text-sm text-loop-700">
+              Review volunteers&apos; spot requests and see which spots are stale or need attention.
+            </p>
+          </div>
+          <Link href="/admin/spots" className="btn-primary shrink-0">
+            Open
+          </Link>
+        </div>
+      </section>
+
       <section>
         <h2 className="font-display text-base font-semibold text-loop-950 mb-3">
           Complaint queue ({open.length} open)
